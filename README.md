@@ -22,3 +22,8 @@ New content added on top of Techguns 2:
   * **Mutant Lair** (medium) - ruined crater with the Mutant Warlord and his warriors.
   * Existing military bases now also contain elite and heavy soldiers.
 * **Military Contracts** (quests) - found in the new structures and dropped by bosses, or crafted from paper, an ink sac and a gold ingot. Right click to get a random assignment (kill soldiers, mutants, undead, aircraft, a boss or any hostiles), kills are counted while the contract is in your inventory. Right click a completed contract to get loot, experience and combat buffs (tier I-III).
+* **Testing**: operators can place the new structures around themselves with `/tgstructure <underground_mine|airfield|bunker|mutant_lair>` and start an air raid with `/tgstructure airraid`.
+
+## Building
+
+Minecraft 1.12.2 / ForgeGradle 2.3 needs **Java 8** and **Gradle 4.10.3**: `gradle build`, the mod jar is in `build/libs`. The GitHub Actions workflow in `.github/workflows/build.yml` builds the jar on every push and uploads it as the `techguns-mod-jar` artifact.

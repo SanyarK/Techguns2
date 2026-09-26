@@ -1,7 +1,7 @@
 buildscript {
     repositories {
-        jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
+        mavenCentral()
+        maven { url = "https://maven.minecraftforge.net/" }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
@@ -35,30 +35,23 @@ minecraft {
 
 repositories {
 	maven {
-		url 'https://repo.elytradev.com/'
-	}
-	maven {
-		// location of the maven that hosts JEI files
-		name = "Progwml6 maven"
-		url = "http://dvs1.progwml6.com/files/maven"
+		// JEI and CraftTweaker
+		name = "BlameJared"
+		url = "https://maven.blamejared.com/"
 	}
 	maven {
 		// location of a maven mirror for JEI files, as a fallback
 		name = "ModMaven"
-		url = "modmaven.k-4u.nl"
+		url = "https://modmaven.dev/"
 	}
 	maven {
-        name = "CurseForge"
-        url = "https://minecraft.curseforge.com/api/maven/"
-    }
-	//ivy { name "com.latmod.mods"; artifactPattern "http://mods.latmod.com/[module]/[revision]/[module]-[revision](-[classifier]).[ext]" }
-	maven { 
-		name="Latmods"
-		url "https://maven.latmod.com/"
+		// Albedo and FTBLib, their original mavens are offline
+		name = "CurseMaven"
+		url = "https://cursemaven.com/"
 	}
 	maven {
 		name = "OpenComputers"
-		url = "http://maven.cil.li/"
+		url = "https://maven.cil.li/"
 	}
 }
 dependencies {
@@ -85,17 +78,17 @@ dependencies {
 
 	//compile 'elucent:albedo:2.0-SNAPSHOT'
 	//deobfCompile 'albedo:albedo:0.1.3:deobf'
-	compile 'albedo:albedo:1.12.2:1.1.0'
+	//albedo-1.12.2-1.1.0
+	deobfCompile "curse.maven:albedo-275300:2714505"
 	
-	compile 'crafttweaker:CraftTweaker2:1.12:4.1.13'
+	deobfCompile "CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.1.20.698"
 	
 	//provided 'chisel:Chisel-MC1.12:0.0.14.18:api'
 	//provided 'chisel:Chisel:MC1.12:0.0.14.18'
 	
-	compile 'the-lost-cities:lostcities:1.12:2.0.12'
-	
 	//compile 'com.latmod.mods:FTBLib:4.2.5:api'
-	deobfCompile "com.feed_the_beast.mods:FTBLib:5.4.0.64"
+	//FTBLib-5.4.6.0
+	deobfCompile "curse.maven:ftb-library-legacy-forge-237167:2890168"
 	
 	 // compile against the JEI API but do not include it at runtime
 	deobfProvided "mezz.jei:jei_${mc_version}:${jei_version}:api"
