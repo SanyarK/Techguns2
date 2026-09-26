@@ -170,12 +170,15 @@ import techguns.client.render.entities.npcs.RenderCommando;
 import techguns.client.render.entities.npcs.RenderCyberDemon;
 import techguns.client.render.entities.npcs.RenderDictatorDave;
 import techguns.client.render.entities.npcs.RenderGhastling;
+import techguns.client.render.entities.npcs.RenderMilitaryJet;
 import techguns.client.render.entities.npcs.RenderNPCTurret;
 import techguns.client.render.entities.npcs.RenderOutcast;
+import techguns.client.render.entities.npcs.RenderParatrooper;
 import techguns.client.render.entities.npcs.RenderPsychoSteve;
 import techguns.client.render.entities.npcs.RenderSkeletonSoldier;
 import techguns.client.render.entities.npcs.RenderStormTrooper;
 import techguns.client.render.entities.npcs.RenderSuperMutant;
+import techguns.client.render.entities.npcs.RenderTexturedSoldier;
 import techguns.client.render.entities.npcs.RenderZombieFarmer;
 import techguns.client.render.entities.npcs.RenderZombieMiner;
 import techguns.client.render.entities.npcs.RenderZombiePigmanSoldier;
@@ -233,9 +236,16 @@ import techguns.entities.npcs.Bandit;
 import techguns.entities.npcs.Commando;
 import techguns.entities.npcs.CyberDemon;
 import techguns.entities.npcs.DictatorDave;
+import techguns.entities.npcs.EliteSoldier;
+import techguns.entities.npcs.General;
 import techguns.entities.npcs.Ghastling;
+import techguns.entities.npcs.HeavySoldier;
+import techguns.entities.npcs.MilitaryJet;
+import techguns.entities.npcs.MutantWarlord;
+import techguns.entities.npcs.MutantWarrior;
 import techguns.entities.npcs.NPCTurret;
 import techguns.entities.npcs.Outcast;
+import techguns.entities.npcs.Paratrooper;
 import techguns.entities.npcs.PsychoSteve;
 import techguns.entities.npcs.SkeletonSoldier;
 import techguns.entities.npcs.StormTrooper;
@@ -1139,6 +1149,14 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(AlienBug.class, RenderAlienBug::new);
 		RenderingRegistry.registerEntityRenderingHandler(Ghastling.class, RenderGhastling::new);
 		RenderingRegistry.registerEntityRenderingHandler(ZombiePoliceman.class, RenderZombiePoliceman::new);
+		
+		RenderingRegistry.registerEntityRenderingHandler(EliteSoldier.class, m -> new RenderTexturedSoldier<EliteSoldier>(m, new ResourceLocation(Techguns.MODID,"textures/entity/elite_soldier.png")));
+		RenderingRegistry.registerEntityRenderingHandler(HeavySoldier.class, m -> new RenderTexturedSoldier<HeavySoldier>(m, new ResourceLocation(Techguns.MODID,"textures/entity/heavy_soldier.png")));
+		RenderingRegistry.registerEntityRenderingHandler(General.class, m -> new RenderTexturedSoldier<General>(m, new ResourceLocation(Techguns.MODID,"textures/entity/general.png")));
+		RenderingRegistry.registerEntityRenderingHandler(Paratrooper.class, RenderParatrooper::new);
+		RenderingRegistry.registerEntityRenderingHandler(MutantWarrior.class, RenderSuperMutant::new);
+		RenderingRegistry.registerEntityRenderingHandler(MutantWarlord.class, RenderSuperMutant::new);
+		RenderingRegistry.registerEntityRenderingHandler(MilitaryJet.class, RenderMilitaryJet::new);
 	}
 	
 	

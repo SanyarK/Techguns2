@@ -13,7 +13,9 @@ public class RenderSuperMutant extends RenderGenericNPC<SuperMutantBasic> {
 	private static final ResourceLocation[] textures = {
 			new ResourceLocation(Techguns.MODID, "textures/entity/supermutant_texture_1.png"),
 			new ResourceLocation(Techguns.MODID, "textures/entity/supermutant_texture_2.png"),
-			new ResourceLocation(Techguns.MODID, "textures/entity/supermutant_texture_3.png")
+			new ResourceLocation(Techguns.MODID, "textures/entity/supermutant_texture_3.png"),
+			new ResourceLocation(Techguns.MODID, "textures/entity/supermutant_texture_4.png"),
+			new ResourceLocation(Techguns.MODID, "textures/entity/supermutant_texture_5.png")
 	};
 
 	

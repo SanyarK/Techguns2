@@ -13,6 +13,8 @@ import techguns.TGBlocks;
 import techguns.blocks.EnumMonsterSpawnerType;
 import techguns.entities.npcs.ArmySoldier;
 import techguns.entities.npcs.AttackHelicopter;
+import techguns.entities.npcs.EliteSoldier;
+import techguns.entities.npcs.HeavySoldier;
 import techguns.tileentities.TGSpawnerTileEnt;
 import techguns.util.BlockUtils;
 import techguns.util.MBlock;
@@ -255,7 +257,9 @@ public class MilitaryCamp {
 			tile = world.getTileEntity(p);
 			if(tile!=null && tile instanceof TGSpawnerTileEnt) {
 				TGSpawnerTileEnt spawner = (TGSpawnerTileEnt) tile;
-				spawner.addMobType(ArmySoldier.class, 1);
+				spawner.addMobType(ArmySoldier.class, 4);
+				spawner.addMobType(EliteSoldier.class, 1);
+				spawner.addMobType(HeavySoldier.class, 1);
 				spawner.setParams(3, 1, 200,0);
 			}
 		}

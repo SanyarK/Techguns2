@@ -21,9 +21,16 @@ import techguns.entities.npcs.Bandit;
 import techguns.entities.npcs.Commando;
 import techguns.entities.npcs.CyberDemon;
 import techguns.entities.npcs.DictatorDave;
+import techguns.entities.npcs.EliteSoldier;
+import techguns.entities.npcs.General;
 import techguns.entities.npcs.Ghastling;
+import techguns.entities.npcs.HeavySoldier;
+import techguns.entities.npcs.MilitaryJet;
+import techguns.entities.npcs.MutantWarlord;
+import techguns.entities.npcs.MutantWarrior;
 import techguns.entities.npcs.NPCTurret;
 import techguns.entities.npcs.Outcast;
+import techguns.entities.npcs.Paratrooper;
 import techguns.entities.npcs.PsychoSteve;
 import techguns.entities.npcs.SkeletonSoldier;
 import techguns.entities.npcs.StormTrooper;
@@ -136,6 +143,14 @@ public class TGEntities implements ITGInitializer {
 		registerModEntityWithEgg(Ghastling.class, "Ghastling", 0xaeaeae, 0xce81ff);
 		registerModEntityWithEgg(ZombiePoliceman.class, "ZombiePoliceman", 0x303030, 0x0000FF);
 		
+		registerModEntityWithEgg(EliteSoldier.class, "EliteSoldier", 0x2b2b2b, 0x74806e);
+		registerModEntityWithEgg(HeavySoldier.class, "HeavySoldier", 0x3c4a5c, 0x191512);
+		registerModEntityWithEgg(Paratrooper.class, "Paratrooper", 0x74806e, 0xe0e0e0);
+		registerModEntityWithEgg(General.class, "General", 0x1e2b16, 0xd4af37);
+		registerModEntityWithEgg(MutantWarrior.class, "MutantWarrior", 0x8a9a3c, 0x5a1010);
+		registerModEntityWithEgg(MutantWarlord.class, "MutantWarlord", 0x6b7a2a, 0x300000);
+		EntityRegistry.registerModEntity(new ResourceLocation(Techguns.MODID,"MilitaryJet"), MilitaryJet.class, Techguns.MODID+".MilitaryJet", ++Techguns.modEntityID, Techguns.instance, 256, 2, true, 0x5a6470, 0x8ec0d7);
+		
 	}
 
 
@@ -163,6 +178,10 @@ public class TGEntities implements ITGInitializer {
 		TGSpawnManager.spawnTableOverworld.registerSpawn(new TGNpcSpawn(PsychoSteve.class, TGConfig.spawnWeightPsychoSteve), 1);
 		
 		TGSpawnManager.spawnTableOverworld.registerSpawn(new TGNpcSpawn(Bandit.class, TGConfig.spawnWeightBandit), 2);
+		
+		TGSpawnManager.spawnTableOverworld.registerSpawn(new TGNpcSpawn(EliteSoldier.class, TGConfig.spawnWeightEliteSoldier), 3);
+		TGSpawnManager.spawnTableOverworld.registerSpawn(new TGNpcSpawn(HeavySoldier.class, TGConfig.spawnWeightHeavySoldier), 3);
+		TGSpawnManager.spawnTableOverworld.registerSpawn(new TGNpcSpawn(MutantWarrior.class, TGConfig.spawnWeightMutantWarrior), 3);
 		
 		
 		TGSpawnManager.spawnTableNether.registerSpawn(new TGNpcSpawn(ZombiePigmanSoldier.class, TGConfig.spawnWeightZombiePigmanSoldier), 0);
