@@ -21,6 +21,7 @@ import techguns.blocks.EnumDoorType;
 import techguns.init.ITGInitializer;
 import techguns.items.BuildingScanTool;
 import techguns.items.GenericItem;
+import techguns.items.ItemMilitaryContract;
 import techguns.items.GenericItemShared;
 import techguns.items.GenericItemShared.SharedItemEntry;
 import techguns.items.ItemRadAway;
@@ -277,6 +278,7 @@ public class TGItems implements ITGInitializer{
 	
 	//rad stuff
 	public static ItemRadAway RAD_AWAY;
+	public static ItemMilitaryContract MILITARY_CONTRACT;
 	public static ItemRadpills RAD_PILLS;
 	
 	//DrillHeads
@@ -527,6 +529,8 @@ public class TGItems implements ITGInitializer{
 		
 		RAD_AWAY = new ItemRadAway("radaway");
 		RAD_PILLS = new ItemRadpills("radpills");
+		
+		MILITARY_CONTRACT = new ItemMilitaryContract("military_contract");
 		
 		/**
 		 * Additional Slot items

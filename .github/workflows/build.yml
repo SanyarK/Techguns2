@@ -1,0 +1,43 @@
+name: Build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ForgeGradle 2.3 (Minecraft 1.12.2) needs Java 8 and Gradle 4.x
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+
+      - name: Cache Gradle and Minecraft files
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('build.gradle', 'gradle.properties') }}
+          restore-keys: gradle-
+
+      - name: Install Gradle 4.10.3
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-4.10.3-bin.zip
+          unzip -q gradle-4.10.3-bin.zip -d "$HOME"
+
+      - name: Build
+        run: $HOME/gradle-4.10.3/bin/gradle build --no-daemon --stacktrace
+
+      - name: Remove sources jar
+        run: rm -f build/libs/*-sources.jar
+
+      - name: Upload mod jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: techguns-mod-jar
+          path: build/libs/*.jar

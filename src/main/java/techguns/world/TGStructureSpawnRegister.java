@@ -8,12 +8,15 @@ import net.minecraftforge.common.BiomeDictionary;
 import techguns.TGConfig;
 import techguns.TGFluids;
 import techguns.world.structures.AircraftCarrier;
+import techguns.world.structures.Airfield;
 import techguns.world.structures.AlienBugNestStructure;
+import techguns.world.structures.BunkerComplex;
 import techguns.world.structures.CastleStructure;
 import techguns.world.structures.DesertOilCluster;
 import techguns.world.structures.FactoryHouseSmall;
 import techguns.world.structures.GasStation;
 import techguns.world.structures.MilitaryBaseStructure;
+import techguns.world.structures.MutantLair;
 import techguns.world.structures.NetherAcidHole;
 import techguns.world.structures.NetherAltarMedium;
 import techguns.world.structures.NetherAltarSmall;
@@ -29,6 +32,7 @@ import techguns.world.structures.PoliceStation;
 import techguns.world.structures.SmallMine;
 import techguns.world.structures.SmallTrainstation;
 import techguns.world.structures.SurvivorHideout;
+import techguns.world.structures.UndergroundMilitaryMine;
 import techguns.world.structures.WorldgenStructure;
 
 public class TGStructureSpawnRegister {
@@ -82,6 +86,14 @@ public class TGStructureSpawnRegister {
 		spawns_big.add(new TGStructureSpawn(new CastleStructure(), 1, null, OVERWORLD, LAND, StructureSize.BIG));
 		
 		spawns_big.add(new TGStructureSpawn(new AircraftCarrier(54,24,21,54,24,21).setXZSize(54, 21),1,null, OVERWORLD, WATER, StructureSize.BIG));
+		
+		if(TGConfig.spawnMilitaryExpansionStructures) {
+			spawns_big.add(new TGStructureSpawn(new UndergroundMilitaryMine(), 1, null, OVERWORLD, LAND, StructureSize.BIG));
+			spawns_big.add(new TGStructureSpawn(new Airfield(), 1, null, OVERWORLD, LAND, StructureSize.BIG));
+			
+			spawns_medium.add(new TGStructureSpawn(new BunkerComplex(), 8, null, OVERWORLD, LAND, StructureSize.MEDIUM));
+			spawns_medium.add(new TGStructureSpawn(new MutantLair(), 6, null, OVERWORLD, LAND, StructureSize.MEDIUM));
+		}
 		
 		
 		//NETHER

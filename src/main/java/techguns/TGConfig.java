@@ -63,6 +63,19 @@ public class TGConfig {
 	
 	public static int spawnWeightPsychoSteve;
 	
+	public static int spawnWeightEliteSoldier;
+	public static int spawnWeightHeavySoldier;
+	public static int spawnWeightMutantWarrior;
+	
+	//air raids by military jets
+	public static boolean airRaids;
+	public static int airRaidInterval;
+	public static float airRaidChance;
+	public static int airRaidMinDistance;
+	
+	//military expansion structures
+	public static boolean spawnMilitaryExpansionStructures;
+	
 	public static int spawnWeightTGOverworld;
 	public static int spawnWeightTGNether;
 	
@@ -204,6 +217,20 @@ public class TGConfig {
 		
 		spawnWeightPsychoSteve = config.getInt("SpawnWeightPsychoSteve", "NPC Spawn", 3, 0, 10000, "Spawn weight for spawning Psycho Steve, early game boss, don't set to high value, at 0 spawn will not be registered");
 	
+		spawnWeightEliteSoldier = config.getInt("SpawnWeightEliteSoldier", "NPC Spawn", 40, 0, 10000, "Spawn weight for spawning Elite Soldiers (only far away from spawn), at 0 spawn will not be registered");
+		
+		spawnWeightHeavySoldier = config.getInt("SpawnWeightHeavySoldier", "NPC Spawn", 25, 0, 10000, "Spawn weight for spawning Heavy Soldiers (only far away from spawn), at 0 spawn will not be registered");
+		
+		spawnWeightMutantWarrior = config.getInt("SpawnWeightMutantWarrior", "NPC Spawn", 30, 0, 10000, "Spawn weight for spawning Mutant Warriors (only far away from spawn), at 0 spawn will not be registered");
+		
+		airRaids = config.getBoolean("AirRaids", "NPC Spawn", true, "Military jets randomly attack players that are far away from the world spawn and drop paratroopers");
+		
+		airRaidInterval = config.getInt("AirRaidInterval", "NPC Spawn", 6000, 200, 1000000, "Every X ticks it is rolled if an air raid on a player should start");
+		
+		airRaidChance = config.getFloat("AirRaidChance", "NPC Spawn", 0.12f, 0.0f, 1.0f, "Chance that an air raid starts when rolled");
+		
+		airRaidMinDistance = config.getInt("AirRaidMinDistance", "NPC Spawn", 1000, 0, Integer.MAX_VALUE, "Minimum distance to the world spawn for air raids");
+		
 		biomeBlacklist = config.getStringList("BiomeBlacklist", "NPC Spawn", new String[]{""}, "Biome Registry names (e.g: minecraft:mushroom_island) that are excluded from Techguns monster spawning");
 		
 		
@@ -237,6 +264,8 @@ public class TGConfig {
 		spawnWeightTGStructureSmall = config.getInt("StructureSpawnWeightSmall", WORLDGEN, 16, 4, 100000, "Every X chunks it's tried to spawnn a Small building. This is in both dimensions, ChunkX, and ChunkY modulo <this Value> must be 0");
 		spawnWeightTGStructureMedium = config.getInt("StructureSpawnWeightMedium", WORLDGEN, 32, 8, 100000, "Every X chunks it's tried to spawnn a Medium building. This is in both dimensions, ChunkX, and ChunkY modulo <this Value> must be 0");
 		
+		
+		spawnMilitaryExpansionStructures = config.getBoolean("SpawnMilitaryExpansionStructures", WORLDGEN, true, "When worldgen is enabled, include the underground military mine, bunker complex, mutant lair and airfield structures.");
 		
 		spawnOreClusterStructures = config.getBoolean("SpawnOreClusterStructures", WORLDGEN, true, "When worldgen is enabled, include structure spawns that contain ore clusters.");
 		
