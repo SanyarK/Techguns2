@@ -75,6 +75,12 @@ public class TGConfig {
 	
 	//military expansion structures
 	public static boolean spawnMilitaryExpansionStructures;
+
+	//story campaign
+	public static boolean campaignEnabled;
+	public static boolean campaignGiveRadio;
+	public static int campaignMinDistance;
+	public static int campaignMaxDistance;
 	
 	public static int spawnWeightTGOverworld;
 	public static int spawnWeightTGNether;
@@ -232,6 +238,14 @@ public class TGConfig {
 		airRaidMinDistance = config.getInt("AirRaidMinDistance", "NPC Spawn", 1000, 0, Integer.MAX_VALUE, "Minimum distance to the world spawn for air raids");
 		
 		biomeBlacklist = config.getStringList("BiomeBlacklist", "NPC Spawn", new String[]{""}, "Biome Registry names (e.g: minecraft:mushroom_island) that are excluded from Techguns monster spawning");
+
+		campaignEnabled = config.getBoolean("CampaignEnabled", "Campaign", true, "Enable the story campaign (commander NPC, radio, mission chain, mutagen lab and the Prototype boss)");
+
+		campaignGiveRadio = config.getBoolean("CampaignGiveRadio", "Campaign", true, "Give new players a radio when they join the world for the first time");
+
+		campaignMinDistance = config.getInt("CampaignMinDistance", "Campaign", 300, 50, 100000, "Minimum distance from the player at which campaign mission objectives are placed");
+
+		campaignMaxDistance = config.getInt("CampaignMaxDistance", "Campaign", 600, 100, 100000, "Maximum distance from the player at which campaign mission objectives are placed");
 		
 		
 		damagePvP = config.getFloat("DamagePvP", DAMAGE_FACTORS, 0.5f, 0.0f, 100.0f, "Damage factor Techguns weapons deal when fired from players against other players, is zero when PvP is disabled");

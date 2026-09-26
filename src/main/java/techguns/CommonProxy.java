@@ -23,6 +23,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import techguns.api.capabilities.ITGExtendedPlayer;
 import techguns.api.capabilities.ITGShooterValues;
+import techguns.capabilities.TGCampaignData;
+import techguns.capabilities.TGCampaignDataStorage;
 import techguns.capabilities.TGExtendedPlayer;
 import techguns.capabilities.TGExtendedPlayerStorage;
 import techguns.capabilities.TGShooterValues;
@@ -125,6 +127,13 @@ public abstract class CommonProxy implements ITGInitializer {
 		CapabilityManager.INSTANCE.register(ITGExtendedPlayer.class, new TGExtendedPlayerStorage(), () -> new TGExtendedPlayer(null));
 		CapabilityManager.INSTANCE.register(ITGShooterValues.class, new TGShooterValuesStorage(), TGShooterValues::new);
 		CapabilityManager.INSTANCE.register(TGSpawnerNPCData.class, new TGSpawnerNPCDataStorage(), TGSpawnerNPCData::new);
+		CapabilityManager.INSTANCE.register(TGCampaignData.class, new TGCampaignDataStorage(), TGCampaignData::new);
+	}
+
+	/**
+	 * Opens the campaign commander dialog, client side only
+	 */
+	public void openCampaignGui(int mission, byte state, int progress, boolean atCommander) {
 	}
 
 	/**

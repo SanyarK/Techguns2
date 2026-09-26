@@ -18,6 +18,7 @@ import techguns.init.ITGInitializer;
 import techguns.items.guns.ammo.AmmoTypes;
 import techguns.plugins.chisel.TGChiselBlocks;
 import techguns.plugins.crafttweaker.TGCraftTweakerIntegration;
+import techguns.server.CommandTGCampaign;
 import techguns.server.CommandTGStructure;
 import techguns.world.OreGenerator;
 import techguns.world.WorldGenTGStructureSpawn;
@@ -153,6 +154,7 @@ public class Techguns
     public void serverStarting(FMLServerStartingEvent event)
     {
     	event.registerServerCommand(new CommandTGStructure());
+    	event.registerServerCommand(new CommandTGCampaign());
     }
     
     

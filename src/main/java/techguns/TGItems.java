@@ -21,7 +21,10 @@ import techguns.blocks.EnumDoorType;
 import techguns.init.ITGInitializer;
 import techguns.items.BuildingScanTool;
 import techguns.items.GenericItem;
+import techguns.items.ItemGPSNavigator;
 import techguns.items.ItemMilitaryContract;
+import techguns.items.ItemQuestItem;
+import techguns.items.ItemRadio;
 import techguns.items.GenericItemShared;
 import techguns.items.GenericItemShared.SharedItemEntry;
 import techguns.items.ItemRadAway;
@@ -280,6 +283,12 @@ public class TGItems implements ITGInitializer{
 	public static ItemRadAway RAD_AWAY;
 	public static ItemMilitaryContract MILITARY_CONTRACT;
 	public static ItemRadpills RAD_PILLS;
+
+	//story campaign
+	public static ItemRadio RADIO;
+	public static ItemGPSNavigator GPS_NAVIGATOR;
+	public static ItemQuestItem INTEL_DOCUMENTS;
+	public static ItemQuestItem MUTAGEN_SAMPLE;
 	
 	//DrillHeads
 	public static ItemStack OREDRILLHEAD_STEEL;
@@ -531,7 +540,12 @@ public class TGItems implements ITGInitializer{
 		RAD_PILLS = new ItemRadpills("radpills");
 		
 		MILITARY_CONTRACT = new ItemMilitaryContract("military_contract");
-		
+
+		RADIO = new ItemRadio("radio");
+		GPS_NAVIGATOR = new ItemGPSNavigator("gps_navigator");
+		INTEL_DOCUMENTS = new ItemQuestItem("intel_documents", Techguns.MODID + ".campaign.item.intel.tooltip", true);
+		MUTAGEN_SAMPLE = new ItemQuestItem("mutagen_sample", Techguns.MODID + ".campaign.item.sample.tooltip", true);
+
 		/**
 		 * Additional Slot items
 		 */

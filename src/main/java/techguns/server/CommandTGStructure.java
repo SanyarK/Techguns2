@@ -18,6 +18,8 @@ import net.minecraft.world.World;
 import techguns.events.MilitaryExpansionEventHandler;
 import techguns.world.structures.Airfield;
 import techguns.world.structures.BunkerComplex;
+import techguns.world.structures.CommandPost;
+import techguns.world.structures.MutagenLabStructure;
 import techguns.world.structures.MutantLair;
 import techguns.world.structures.UndergroundMilitaryMine;
 import techguns.world.structures.WorldgenStructure;
@@ -29,7 +31,7 @@ import techguns.world.structures.WorldgenStructure.BiomeColorType;
  */
 public class CommandTGStructure extends CommandBase {
 
-	protected static final String[] OPTIONS = {"underground_mine", "airfield", "bunker", "mutant_lair", "airraid"};
+	protected static final String[] OPTIONS = {"underground_mine", "airfield", "bunker", "mutant_lair", "mutagen_lab", "command_post", "airraid"};
 
 	@Override
 	public String getName() {
@@ -38,7 +40,7 @@ public class CommandTGStructure extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/tgstructure <underground_mine|airfield|bunker|mutant_lair|airraid>";
+		return "/tgstructure <underground_mine|airfield|bunker|mutant_lair|mutagen_lab|command_post|airraid>";
 	}
 
 	@Override
@@ -78,6 +80,12 @@ public class CommandTGStructure extends CommandBase {
 			break;
 		case "mutant_lair":
 			structure = new MutantLair();
+			break;
+		case "mutagen_lab":
+			structure = new MutagenLabStructure();
+			break;
+		case "command_post":
+			structure = new CommandPost();
 			break;
 		default:
 			throw new WrongUsageException(this.getUsage(sender));

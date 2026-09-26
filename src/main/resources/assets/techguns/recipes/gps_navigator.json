@@ -1,0 +1,26 @@
+{
+  "result": {
+    "item": "techguns:gps_navigator"
+  },
+  "pattern": [
+    "igi",
+    "rcr",
+    "iii"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "g": {
+      "type": "forge:ore_dict",
+      "ore": "paneGlass"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "c": {
+      "item": "minecraft:compass"
+    }
+  }
+}
