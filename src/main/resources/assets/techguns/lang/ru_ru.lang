@@ -979,3 +979,4 @@ techguns.campaign.mission10.done=Смирно! За уничтожение Пр�
 techguns.message.prototype.phase2=Прототип срывает миниган с крепления!
 techguns.message.prototype.phase3=Прототип впадает в ярость!
 techguns.message.prototype.summon=Прототип призывает мутантов на помощь!
+techguns.campaign.msg.overworld_only=Задания кампании можно принимать только в обычном мире.

@@ -981,3 +981,4 @@ techguns.campaign.mission10.done=Attention! For destroying the Prototype and sav
 techguns.message.prototype.phase2=The Prototype rips a minigun from its mount!
 techguns.message.prototype.phase3=The Prototype goes berserk!
 techguns.message.prototype.summon=The Prototype calls mutants for help!
+techguns.campaign.msg.overworld_only=Campaign missions can only be accepted in the overworld.

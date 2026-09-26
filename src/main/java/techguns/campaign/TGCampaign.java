@@ -78,6 +78,14 @@ public class TGCampaign {
 		return TGConfig.campaignEnabled;
 	}
 
+	/**
+	 * Campaign world data always lives in the overworld, no matter where the player is right now
+	 */
+	protected static CampaignWorldData overworldData(EntityPlayerMP player) {
+		World world = player.getServer() != null ? player.getServer().getWorld(0) : player.world;
+		return CampaignWorldData.get(world);
+	}
+
 	public static void sync(EntityPlayerMP player) {
 		TGCampaignData data = TGCampaignData.get(player);
 		if (data != null) {
@@ -165,6 +173,11 @@ public class TGCampaign {
 		boolean atCommander = findCommanderNear(player, 6.0D) != null;
 
 		if (action == ACTION_ACCEPT && data.getState() == TGCampaignData.STATE_OFFERED) {
+			//campaign objectives only exist in the overworld
+			if (player.world.provider.getDimension() != 0) {
+				player.sendMessage(new TextComponentTranslation(Techguns.MODID + ".campaign.msg.overworld_only").setStyle(new Style().setColor(TextFormatting.RED)));
+				return;
+			}
 			acceptMission(player, data);
 		} else if (action == ACTION_TURN_IN) {
 			tryTurnIn(player, data, atCommander);
@@ -423,15 +436,19 @@ public class TGCampaign {
 		}
 
 		giveRewards(player, mission);
-		CampaignWorldData.get(player.world).clearObjective(player);
+		overworldData(player).clearObjective(player);
 
 		if (mission.id >= TGCampaignData.LAST_MISSION) {
 			data.setMission(TGCampaignData.LAST_MISSION + 1, TGCampaignData.STATE_OFFERED);
 			data.clearObjective();
 			finishCampaign(player);
 		} else {
+			CampaignMission next = CampaignMission.byId(mission.id + 1);
 			data.setMission(mission.id + 1, TGCampaignData.STATE_OFFERED);
-			data.clearObjective();
+			//the sample and prototype missions play in the lab found in mission 7, keep its marker
+			if (next != CampaignMission.SAMPLE && next != CampaignMission.PROTOTYPE) {
+				data.clearObjective();
+			}
 			commanderSays(player, "msg.mission_complete", new TextComponentTranslation(mission.getTitleKey()));
 		}
 		sync(player);
@@ -588,7 +605,7 @@ public class TGCampaign {
 		if (data == null) {
 			return;
 		}
-		CampaignWorldData.get(player.world).clearObjective(player);
+		overworldData(player).clearObjective(player);
 		data.setMission(missionId, TGCampaignData.STATE_OFFERED);
 		data.clearObjective();
 		data.setRadioGiven(true);
@@ -600,7 +617,7 @@ public class TGCampaign {
 		if (data == null) {
 			return;
 		}
-		CampaignWorldData wsd = CampaignWorldData.get(player.world);
+		CampaignWorldData wsd = overworldData(player);
 		wsd.clearAll(player);
 		data.setMission(TGCampaignData.FIRST_MISSION, TGCampaignData.STATE_OFFERED);
 		data.clearObjective();
