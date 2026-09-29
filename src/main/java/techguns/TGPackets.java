@@ -15,6 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import techguns.init.ITGInitializer;
 import techguns.packets.GunFiredMessage;
 import techguns.packets.PacketCampaignAction;
+import techguns.packets.PacketCampaignEvent;
 import techguns.packets.PacketCampaignOpenGui;
 import techguns.packets.PacketCampaignSync;
 import techguns.packets.PacketDoorStateChange;
@@ -100,6 +101,7 @@ public class TGPackets implements ITGInitializer {
 		network.registerMessage(PacketCampaignSync.Handler.class, PacketCampaignSync.class, packetid++, Side.CLIENT);
 		network.registerMessage(PacketCampaignOpenGui.Handler.class, PacketCampaignOpenGui.class, packetid++, Side.CLIENT);
 		network.registerMessage(PacketCampaignAction.Handler.class, PacketCampaignAction.class, packetid++, Side.SERVER);
+		network.registerMessage(PacketCampaignEvent.Handler.class, PacketCampaignEvent.class, packetid++, Side.CLIENT);
 
 		
 		/*

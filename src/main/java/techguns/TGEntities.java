@@ -19,6 +19,7 @@ import techguns.entities.npcs.ArmySoldier;
 import techguns.entities.npcs.AttackHelicopter;
 import techguns.entities.npcs.Bandit;
 import techguns.entities.npcs.CapturedScientist;
+import techguns.entities.npcs.ChimeraBoss;
 import techguns.entities.npcs.Commando;
 import techguns.entities.npcs.CommanderNPC;
 import techguns.entities.npcs.CyberDemon;
@@ -35,6 +36,7 @@ import techguns.entities.npcs.Outcast;
 import techguns.entities.npcs.Paratrooper;
 import techguns.entities.npcs.LegionPrisoner;
 import techguns.entities.npcs.PrototypeBoss;
+import techguns.entities.npcs.SettlerNPC;
 import techguns.entities.npcs.PsychoSteve;
 import techguns.entities.npcs.SkeletonSoldier;
 import techguns.entities.npcs.StormTrooper;
@@ -160,6 +162,8 @@ public class TGEntities implements ITGInitializer {
 		registerModEntityWithEgg(CapturedScientist.class, "CapturedScientist", 0xf0f0f0, 0x4a90d9);
 		registerModEntityWithEgg(PrototypeBoss.class, "PrototypeBoss", 0x3a5a2a, 0x9b30ff);
 		registerModEntityWithEgg(LegionPrisoner.class, "LegionPrisoner", 0x8a7a5a, 0xd96b1e);
+		registerModEntityWithEgg(ChimeraBoss.class, "ChimeraBoss", 0x70784e, 0x9a2f3f, 96);
+		registerModEntityWithEgg(SettlerNPC.class, "SettlerNPC", 0x6a8a4a, 0xd8c9a0);
 
 	}
 

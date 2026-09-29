@@ -47,6 +47,7 @@ import techguns.campaign.CampaignMission.ObjectiveType;
 import techguns.capabilities.TGCampaignData;
 import techguns.entities.npcs.CapturedScientist;
 import techguns.entities.npcs.CommanderNPC;
+import techguns.entities.npcs.LegionPrisoner;
 import techguns.entities.npcs.MilitaryJet;
 import techguns.events.MilitaryExpansionEventHandler;
 import techguns.packets.PacketCampaignOpenGui;
@@ -63,6 +64,8 @@ public class TGCampaign {
 	/** dialog actions sent by the client GUI */
 	public static final int ACTION_ACCEPT = 0;
 	public static final int ACTION_TURN_IN = 1;
+	/** after the campaign: the commander hands out a military contract */
+	public static final int ACTION_CONTRACT = 2;
 
 	/** structures are placed when the player gets this close to the objective point */
 	public static final double PLACE_DISTANCE = 96.0D;
@@ -123,6 +126,16 @@ public class TGCampaign {
 		ITextComponent text = new TextComponentTranslation(Techguns.MODID + ".campaign." + key, args);
 		text.setStyle(new Style().setColor(TextFormatting.GRAY).setItalic(true));
 		player.sendMessage(name.appendSibling(text));
+	}
+
+	/**
+	 * a line of doctor Volkov over the radio
+	 */
+	public static void volkovSays(EntityPlayer player, String key, Object... args) {
+		ITextComponent name = new TextComponentTranslation(Techguns.MODID + ".campaign.volkov.name");
+		name.setStyle(new Style().setColor(TextFormatting.AQUA));
+		ITextComponent text = new TextComponentTranslation(Techguns.MODID + ".campaign." + key, args);
+		player.sendMessage(name.appendSibling(new TextComponentTranslation(Techguns.MODID + ".campaign.chat.separator")).appendSibling(text));
 	}
 
 	public static void giveOrDrop(EntityPlayer player, ItemStack stack) {
@@ -328,7 +341,14 @@ public class TGCampaign {
 			return;
 		}
 		TGCampaignData data = TGCampaignData.get(player);
-		if (data == null || data.isFinished()) {
+		if (data == null) {
+			return;
+		}
+		if (data.isFinished()) {
+			if (action == ACTION_CONTRACT) {
+				giveContract(player);
+				openDialog(player, findCommanderNear(player, COMMANDER_RADIUS) != null);
+			}
 			return;
 		}
 		CampaignMission m = CampaignMissions.byId(data.getMission());
@@ -352,6 +372,20 @@ public class TGCampaign {
 		}
 		//refresh the dialog on the client
 		openDialog(player, findCommanderNear(player, COMMANDER_RADIUS) != null);
+	}
+
+	/**
+	 * free play after the campaign: the colonel hands out military contracts in person, one at a time
+	 */
+	protected static void giveContract(EntityPlayerMP player) {
+		if (findCommanderNear(player, COMMANDER_RADIUS) == null) {
+			commanderSays(player, "msg.contract_in_person");
+		} else if (countItem(player, TGItems.MILITARY_CONTRACT) > 0) {
+			commanderSays(player, "msg.contract_have");
+		} else {
+			giveOrDrop(player, new ItemStack(TGItems.MILITARY_CONTRACT));
+			commanderSays(player, "msg.contract_given");
+		}
 	}
 
 	/*
@@ -432,8 +466,18 @@ public class TGCampaign {
 				int n = Math.max(1, m.getSiteCount());
 				double base = RND.nextDouble() * Math.PI * 2.0D;
 				for (int i = 0; i < n; i++) {
+					CampaignSite site = m.getSite(i);
+					//missions with several places come back to known places, e.g. the lab
+					CampaignPoint known = n > 1 && site.memory != null ? wsd.getSite(player, site.memory) : null;
+					if (known != null) {
+						known.armed = false;
+						known.done = false;
+						known.targets.clear();
+						points.add(known);
+						continue;
+					}
 					double angle = base + i * Math.PI * 2.0D / n + (RND.nextDouble() - 0.5D) * Math.PI / (n + 1);
-					points.add(new CampaignPoint(pickPoint(world, anchor, scaled(m.minDistance), scaled(m.maxDistance), angle), m.getSite(i)));
+					points.add(new CampaignPoint(pickPoint(world, anchor, scaled(m.minDistance), scaled(m.maxDistance), angle), site));
 				}
 			}
 			if (m.type == ObjectiveType.ESCORT && m.destination == Destination.EVAC) {
@@ -475,6 +519,23 @@ public class TGCampaign {
 			commanderSays(player, "msg.come_in_person");
 			return;
 		}
+		if (m.hasComponents()) {
+			for (int i = 0; i < m.components.size(); i++) {
+				Item component = m.getComponent(i);
+				if (component != null && countItem(player, component) == 0) {
+					commanderSays(player, "msg.need_item", new TextComponentTranslation(component.getUnlocalizedName() + ".name"), 1);
+					data.setState(TGCampaignData.STATE_ACTIVE);
+					sync(player);
+					return;
+				}
+			}
+			for (int i = 0; i < m.components.size(); i++) {
+				Item component = m.getComponent(i);
+				if (component != null) {
+					consumeItems(player, component, 1);
+				}
+			}
+		}
 		Item item = m.getQuestItem();
 		int need = 0;
 		if (item != null && (m.type == ObjectiveType.COLLECT || m.type == ObjectiveType.ITEM || m.type == ObjectiveType.BOSS)) {
@@ -505,7 +566,9 @@ public class TGCampaign {
 		CampaignMission next = CampaignMissions.byId(m.id + 1);
 		if (next == null) {
 			data.setMission(TGCampaignData.LAST_MISSION + 1, TGCampaignData.STATE_OFFERED);
-			finishCampaign(player);
+			player.sendMessage(new TextComponentTranslation(Techguns.MODID + ".campaign.msg.act_complete", new TextComponentTranslation(m.getActKey()))
+					.setStyle(new Style().setColor(TextFormatting.GOLD).setBold(true)));
+			CampaignFinale.start(player);
 		} else {
 			data.setMission(next.id, TGCampaignData.STATE_OFFERED);
 			if (next.act != m.act) {
@@ -521,12 +584,19 @@ public class TGCampaign {
 		sync(player);
 	}
 
-	protected static void finishCampaign(EntityPlayerMP player) {
+	/**
+	 * the whole server learns about the new Wasteland Hero
+	 */
+	public static void finishCampaign(EntityPlayerMP player) {
 		player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.PLAYERS, 1.0f, 1.0f);
 		if (player.getServer() != null) {
 			ITextComponent msg = new TextComponentTranslation(Techguns.MODID + ".campaign.msg.title_awarded", player.getName());
 			msg.setStyle(new Style().setColor(TextFormatting.GOLD).setBold(true));
 			player.getServer().getPlayerList().sendMessage(msg);
+			ITextComponent title = new TextComponentTranslation(Techguns.MODID + ".campaign.msg.hero_title", player.getName(),
+					new TextComponentTranslation(Techguns.MODID + ".campaign.hero.title"));
+			title.setStyle(new Style().setColor(TextFormatting.YELLOW));
+			player.getServer().getPlayerList().sendMessage(title);
 		}
 	}
 
@@ -568,11 +638,17 @@ public class TGCampaign {
 
 	public static void tickPlayer(EntityPlayerMP player) {
 		TGCampaignData data = TGCampaignData.get(player);
-		if (data == null || data.isFinished()) {
+		if (data == null) {
 			return;
 		}
 		World world = player.world;
 		CampaignWorldData wsd = CampaignWorldData.get(world);
+		if (data.isFinished()) {
+			//free play: the colonel and the settlers stay at the post
+			respawnCommanderCheck(player, wsd);
+			CampaignFinale.settlersCheck(player, wsd);
+			return;
+		}
 
 		if (data.getMission() == TGCampaignData.FIRST_MISSION && data.getState() == TGCampaignData.STATE_OFFERED) {
 			radioCall(player);
@@ -592,8 +668,9 @@ public class TGCampaign {
 			double d = horizontalDistSq(player, p.pos);
 			if (!p.placed && d < PLACE_DISTANCE * PLACE_DISTANCE) {
 				CampaignSiteBuilder.place(world, wsd, player, p, RND);
-				if (m.siteKey != null && p.site.persistent) {
-					wsd.setSite(player, m.siteKey, p);
+				String key = m.siteKey != null ? m.siteKey : p.site.memory;
+				if (key != null && p.site.persistent) {
+					wsd.setSite(player, key, p);
 				}
 				chat(player, "msg.objective_spotted");
 				dirty = true;
@@ -609,8 +686,14 @@ public class TGCampaign {
 		}
 
 		if (data.getState() == TGCampaignData.STATE_ACTIVE) {
+			if (m.type == ObjectiveType.ESCORT && m.destination == Destination.SITE) {
+				caravanCheck(player, wsd);
+			}
 			checkObjective(player, data, m, points);
-			if (m.raids != null && !m.isDefense() && data.getState() == TGCampaignData.STATE_ACTIVE && player.ticksExisted % (20 * Math.max(m.raidInterval, 5)) == 0) {
+			//the caravan is only ambushed on the way
+			boolean onTheWay = m.type != ObjectiveType.ESCORT || m.destination != Destination.SITE || hasFollowingCaptive(player);
+			if (m.raids != null && !m.isDefense() && onTheWay && data.getState() == TGCampaignData.STATE_ACTIVE
+					&& player.ticksExisted % (20 * Math.max(m.raidInterval, 5)) == 0) {
 				spawnRaid(player, m);
 			}
 		}
@@ -643,7 +726,9 @@ public class TGCampaign {
 			}
 			break;
 		case COLLECT:
-			if (m.getQuestItem() != null) {
+			if (m.hasComponents()) {
+				checkComponents(player, data, m, points);
+			} else if (m.getQuestItem() != null) {
 				int have = Math.min(countItem(player, m.getQuestItem()), m.count);
 				if (have != data.getProgress()) {
 					data.setProgress(have);
@@ -651,6 +736,9 @@ public class TGCampaign {
 				}
 				if (have >= m.count) {
 					setReady(player, data, m);
+				} else if (m.dropFrom != null && m.site != CampaignSite.NONE && player.ticksExisted % 600 == 0) {
+					//new carriers of the samples come when the zone ran empty
+					reinforce(player, points, m.dropFrom, Math.min(6, (m.count - have) * 2));
 				}
 			}
 			break;
@@ -680,6 +768,39 @@ public class TGCampaign {
 			break;
 		default:
 			break;
+		}
+	}
+
+	/**
+	 * COLLECT with components: one quest item per place, progress is the number of different items the player carries
+	 */
+	protected static void checkComponents(EntityPlayerMP player, TGCampaignData data, CampaignMission m, List<CampaignPoint> points) {
+		int have = 0;
+		boolean changed = false;
+		for (int i = 0; i < m.components.size(); i++) {
+			Item item = m.getComponent(i);
+			boolean found = item != null && countItem(player, item) > 0;
+			if (found) {
+				have++;
+			}
+			if (i < points.size() && points.get(i).done != found) {
+				points.get(i).done = found;
+				changed = true;
+			}
+		}
+		if (changed) {
+			overworldData(player).savePoints(player);
+		}
+		if (have != data.getProgress()) {
+			if (have > data.getProgress() && have < m.count) {
+				commanderSays(player, "msg.component_found", have, m.count);
+			}
+			data.setProgress(have);
+			updateMarker(player, data, m);
+			sync(player);
+		}
+		if (have >= m.count) {
+			setReady(player, data, m);
 		}
 	}
 
@@ -735,6 +856,10 @@ public class TGCampaign {
 			}
 			c.setDelivered();
 			c.stayHere();
+			if (m.destination == Destination.SITE) {
+				//doctor Volkov prepares the Purifier and stays at the launch pad
+				c.protect();
+			}
 			data.setProgress(data.getProgress() + 1);
 			if (m.destination == Destination.EVAC) {
 				//picked up by the Resistance
@@ -743,6 +868,8 @@ public class TGCampaign {
 				}
 				c.setDead();
 				commanderSays(player, "msg.captive_evacuated", data.getProgress(), m.count);
+			} else if (m.destination == Destination.SITE) {
+				volkovSays(player, "msg.volkov_arrived");
 			} else {
 				commanderSays(player, "msg.captive_delivered");
 			}
@@ -896,6 +1023,14 @@ public class TGCampaign {
 			return;
 		}
 		if (battle.tick(player, data)) {
+			if (m.type == ObjectiveType.DEFEND && m.seconds > 0) {
+				//the Purifier is charged: its first pulse burns the attackers, the beam turns green
+				battle.purge();
+				if (points.get(0).poi != null) {
+					CampaignStructures.openPurifier(player.world, points.get(0).poi);
+				}
+				volkovSays(player, "msg.purifier_charged");
+			}
 			setReady(player, data, m);
 		}
 	}
@@ -1001,7 +1136,7 @@ public class TGCampaign {
 			return;
 		}
 		CampaignMission m = CampaignMissions.byId(data.getMission());
-		if (m == null || !m.playable || m.type != ObjectiveType.COLLECT || m.getQuestItem() != null) {
+		if (m == null || !m.playable || m.type != ObjectiveType.COLLECT || m.getQuestItem() != null || m.hasComponents()) {
 			return;
 		}
 		List<CampaignPoint> points = currentPoints(player, m);
@@ -1097,6 +1232,22 @@ public class TGCampaign {
 			}
 			break;
 		case COLLECT:
+			if (m.hasComponents()) {
+				BlockPos best = null;
+				double bestDist = Double.MAX_VALUE;
+				for (int i = 0; i < points.size(); i++) {
+					Item component = m.getComponent(i);
+					if (component != null && countItem(player, component) > 0) {
+						continue;
+					}
+					double d = horizontalDistSq(player, points.get(i).pos);
+					if (d < bestDist) {
+						bestDist = d;
+						best = points.get(i).pos;
+					}
+				}
+				return best != null ? best : (m.inPerson ? post : null);
+			}
 			if (m.getQuestItem() == null) {
 				BlockPos best = null;
 				double bestDist = Double.MAX_VALUE;
@@ -1129,6 +1280,42 @@ public class TGCampaign {
 			break;
 		}
 		return points.isEmpty() ? null : points.get(0).pos;
+	}
+
+	/**
+	 * ESCORT to the site: doctor Volkov waits with the components at the command post. The Volkov
+	 * rescued in act II joins the caravan when he is still there, otherwise he arrives.
+	 */
+	protected static void caravanCheck(EntityPlayerMP player, CampaignWorldData wsd) {
+		if (player.ticksExisted % 100 != 0 || !wsd.hasCommandPost(player)) {
+			return;
+		}
+		BlockPos post = wsd.getCommandPost(player);
+		if (horizontalDistSq(player, post) > 48.0D * 48.0D) {
+			return;
+		}
+		CapturedScientist waiting = null;
+		for (CapturedScientist c : player.world.getEntitiesWithinAABB(CapturedScientist.class, new AxisAlignedBB(post).grow(128.0D, 48.0D, 128.0D))) {
+			if (c instanceof LegionPrisoner || !c.isEntityAlive()) {
+				continue;
+			}
+			if (!c.isDelivered() && (c.getRescuerPlayer() == null || c.isRescuer(player))) {
+				//already waiting or following
+				return;
+			}
+			if (c.isDelivered() && waiting == null && horizontalDistSq(c, post) < 24.0D * 24.0D) {
+				waiting = c;
+			}
+		}
+		if (waiting == null) {
+			waiting = new CapturedScientist(player.world);
+			BlockPos spot = randomSurface(player.world, post, 2, 4);
+			waiting.setLocationAndAngles(spot.getX() + 0.5D, spot.getY(), spot.getZ() + 0.5D, 0.0f, 0.0f);
+			waiting.onInitialSpawn(player.world.getDifficultyForLocation(spot), null);
+			player.world.spawnEntity(waiting);
+		}
+		waiting.joinCaravan(post);
+		volkovSays(player, "msg.volkov_ready");
 	}
 
 	protected static boolean hasFollowingCaptive(EntityPlayerMP player) {

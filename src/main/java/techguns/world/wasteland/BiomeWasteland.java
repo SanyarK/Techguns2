@@ -38,6 +38,12 @@ public class BiomeWasteland extends Biome {
 	protected static final IBlockState CLAY = Blocks.CLAY.getDefaultState();
 	protected static final IBlockState HARDENED_CLAY = Blocks.HARDENED_CLAY.getDefaultState();
 
+	/**
+	 * the Purifier of the campaign was launched in the loaded world: clean rain, a blue sky and green
+	 * grass instead of the dust. Set by the server from the saved data and on the client by a packet.
+	 */
+	protected static volatile boolean worldRestored = false;
+
 	public final Kind kind;
 	protected final WorldGenDeadTree deadTree;
 
@@ -181,6 +187,22 @@ public class BiomeWasteland extends Biome {
 		return this.deadTree;
 	}
 
+	public static boolean isWorldRestored() {
+		return worldRestored;
+	}
+
+	public static void setWorldRestored(boolean restored) {
+		worldRestored = restored;
+	}
+
+	/**
+	 * no rain ever fell on the wastes, until the Purifier cleaned the air
+	 */
+	@Override
+	public boolean canRain() {
+		return worldRestored;
+	}
+
 	@Override
 	public float getSpawningChance() {
 		return 0.02f;
@@ -231,6 +253,9 @@ public class BiomeWasteland extends Biome {
 	@SideOnly(Side.CLIENT)
 	@Override
 	public int getSkyColorByTemp(float currentTemperature) {
+		if (worldRestored) {
+			return super.getSkyColorByTemp(currentTemperature);
+		}
 		switch (this.kind) {
 		case RADIOACTIVE_ZONE:
 			return 0x8A9C78;
@@ -244,6 +269,9 @@ public class BiomeWasteland extends Biome {
 	@SideOnly(Side.CLIENT)
 	@Override
 	public int getGrassColorAtPos(BlockPos pos) {
+		if (worldRestored) {
+			return this.kind == Kind.RADIOACTIVE_ZONE ? 0x9CC45A : 0x86BF58;
+		}
 		switch (this.kind) {
 		case RADIOACTIVE_ZONE:
 			return 0x9AA44E;
@@ -257,6 +285,9 @@ public class BiomeWasteland extends Biome {
 	@SideOnly(Side.CLIENT)
 	@Override
 	public int getFoliageColorAtPos(BlockPos pos) {
+		if (worldRestored) {
+			return 0x6DAA3A;
+		}
 		switch (this.kind) {
 		case RADIOACTIVE_ZONE:
 			return 0x8C9A48;

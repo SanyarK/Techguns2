@@ -35,6 +35,8 @@ public class GuiCampaignDialog extends GuiScreen {
 	protected static final int BTN_BACK = 4;
 	protected static final int BTN_PREV = 5;
 	protected static final int BTN_NEXT = 6;
+	protected static final int BTN_CONTRACT = 7;
+	protected static final int BTN_EPILOGUE = 8;
 
 	protected int mission;
 	protected byte state;
@@ -100,6 +102,15 @@ public class GuiCampaignDialog extends GuiScreen {
 
 		CampaignMission m = CampaignMissions.byId(this.mission);
 		int x = left + 8;
+		if (this.isFinished()) {
+			//free play: contracts from the colonel and the epilogue once more
+			GuiButton contract = new GuiButton(BTN_CONTRACT, x, bottom, 70, 20, I18n.format("techguns.campaign.gui.contract"));
+			contract.enabled = this.atCommander;
+			this.buttonList.add(contract);
+			x += 74;
+			this.buttonList.add(new GuiButton(BTN_EPILOGUE, x, bottom, 56, 20, I18n.format("techguns.campaign.gui.epilogue")));
+			x += 60;
+		}
 		if (!this.isFinished() && m != null && this.state == TGCampaignData.STATE_OFFERED) {
 			GuiButton accept = new GuiButton(BTN_ACCEPT, x, bottom, 110, 20, I18n.format(m.type == ObjectiveType.TALK && !m.inPerson ? "techguns.campaign.gui.answer" : "techguns.campaign.gui.accept"));
 			accept.enabled = m.playable;
@@ -125,6 +136,12 @@ public class GuiCampaignDialog extends GuiScreen {
 			break;
 		case BTN_TURN_IN:
 			TGPackets.network.sendToServer(new PacketCampaignAction(TGCampaign.ACTION_TURN_IN));
+			break;
+		case BTN_CONTRACT:
+			TGPackets.network.sendToServer(new PacketCampaignAction(TGCampaign.ACTION_CONTRACT));
+			break;
+		case BTN_EPILOGUE:
+			this.mc.displayGuiScreen(new GuiCampaignEpilogue());
 			break;
 		case BTN_JOURNAL:
 			this.journal = true;
@@ -186,6 +203,8 @@ public class GuiCampaignDialog extends GuiScreen {
 		CampaignMission m = CampaignMissions.byId(this.mission);
 		if (this.isFinished() || m == null) {
 			this.fontRenderer.drawSplitString(I18n.format("techguns.campaign.finished.text"), x, y, TEXT_WIDTH, 0xE0E0E0);
+			y += this.fontRenderer.getWordWrappedHeight(I18n.format("techguns.campaign.finished.text"), TEXT_WIDTH) + 8;
+			this.fontRenderer.drawSplitString(I18n.format("techguns.campaign.finished.free_play"), x, y, TEXT_WIDTH, 0x9aa88a);
 			return;
 		}
 
@@ -232,6 +251,9 @@ public class GuiCampaignDialog extends GuiScreen {
 	protected String progressText(CampaignMission m) {
 		switch (m.type) {
 		case DEFEND:
+			if (m.seconds > 0) {
+				return I18n.format("techguns.campaign.gui.charge", this.progress);
+			}
 			return I18n.format("techguns.campaign.gui.waves", this.progress, m.getRequired());
 		case SURVIVE:
 			return I18n.format("techguns.campaign.gui.time", Math.max(m.seconds - this.progress, 0));

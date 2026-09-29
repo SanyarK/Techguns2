@@ -13,6 +13,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -25,6 +26,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary;
 import techguns.TGBlocks;
 import techguns.TGItems;
+import techguns.campaign.CampaignMission.ObjectiveType;
 import techguns.Techguns;
 import techguns.blocks.EnumCampaignTargetType;
 import techguns.blocks.EnumConcreteType;
@@ -113,10 +115,27 @@ public class CampaignSiteBuilder {
 			break;
 		case MUTANT_LAIR:
 			structure(world, point, new MutantLair(), rnd);
+			//the warlord of the mission is spawned by the campaign, not by the spawner of the lair
+			point.poi = CampaignStructures.removeCenterSpawner(world, point.pos);
 			break;
 		case MUTAGEN_LAB:
 			structure(world, point, new MutagenLabStructure(), rnd);
 			point.poi = point.pos.add(MutagenLabStructure.BOSS_OFFSET_X, MutagenLabStructure.BOSS_OFFSET_Y, MutagenLabStructure.BOSS_OFFSET_Z);
+			break;
+		case MUTANT_ZONE:
+			CampaignStructures.mutantZone(world, point, rnd);
+			break;
+		case REACTOR_RUINS:
+			CampaignStructures.reactorRuins(world, point, rnd);
+			break;
+		case LEGION_HQ:
+			CampaignStructures.legionHQ(world, point, rnd);
+			break;
+		case LAUNCH_SITE:
+			CampaignStructures.launchSite(world, point, rnd);
+			break;
+		case HIVE:
+			CampaignStructures.hive(world, point, rnd);
 			break;
 		default:
 			//no structure (yet): the point is on the ground
@@ -624,6 +643,26 @@ public class CampaignSiteBuilder {
 			group(world, CampaignTarget.LEGION, c, 4, 3, 10);
 			group(world, CampaignTarget.LEGION_ELITE, c, 2, 3, 10);
 			break;
+		case MUTANT_ZONE:
+			group(world, CampaignTarget.MUTANT_WARRIOR, c, 6, 4, 16);
+			group(world, CampaignTarget.MUTANT, c, 3, 4, 16);
+			break;
+		case REACTOR_RUINS:
+			group(world, CampaignTarget.ZOMBIE_SOLDIER, c, 5, 3, 14);
+			group(world, CampaignTarget.MUTANT, c, 3, 4, 14);
+			break;
+		case LEGION_HQ:
+			group(world, CampaignTarget.LEGION, c, 6, 4, 14);
+			group(world, CampaignTarget.LEGION_ELITE, c, 3, 4, 12);
+			break;
+		case HIVE:
+			group(world, CampaignTarget.MUTANT, c, 4, 3, 14);
+			break;
+		case MUTAGEN_LAB:
+			if (mission.type != ObjectiveType.BOSS) {
+				group(world, CampaignTarget.MUTANT_WARRIOR, c, 2, 3, 10);
+			}
+			break;
 		default:
 			break;
 		}
@@ -644,7 +683,8 @@ public class CampaignSiteBuilder {
 			}
 			break;
 		case ESCORT:
-			if (point.site != CampaignSite.EVAC) {
+			//the captives wait in their cell, the caravan starts at the command post (see TGCampaign.caravanCheck)
+			if (point.site != CampaignSite.EVAC && mission.destination != CampaignMission.Destination.SITE) {
 				spawnCaptives(world, point, mission.count);
 			}
 			break;
@@ -654,10 +694,37 @@ public class CampaignSiteBuilder {
 				group(world, mission.target2, point.targets.get(0), mission.count2, 3, 12);
 			}
 			break;
+		case COLLECT:
+			if (mission.hasComponents()) {
+				BlockPos chest = componentChest(point);
+				point.poi = chest;
+				Item component = mission.getComponent(index);
+				if (component != null && TGCampaign.countItem(player, component) == 0) {
+					CampaignStructures.fillChest(world, chest, component);
+				}
+			}
+			break;
+		case ITEM:
+			//the sample is back in the safe when it got lost
+			if (point.site == CampaignSite.MUTAGEN_LAB && mission.getQuestItem() != null && TGCampaign.countItem(player, mission.getQuestItem()) == 0) {
+				CampaignStructures.fillChest(world, point.pos.add(MutagenLabStructure.SAFE_OFFSET_X, MutagenLabStructure.SAFE_OFFSET_Y, MutagenLabStructure.SAFE_OFFSET_Z),
+						mission.getQuestItem());
+			}
+			break;
 		default:
 			break;
 		}
 		point.armed = true;
+	}
+
+	/**
+	 * chest of a Purifier component: the core container, the safe of the headquarters or the filter spot of the lab
+	 */
+	public static BlockPos componentChest(CampaignPoint point) {
+		if (point.site == CampaignSite.MUTAGEN_LAB) {
+			return point.pos.add(MutagenLabStructure.FILTER_OFFSET_X, MutagenLabStructure.FILTER_OFFSET_Y, MutagenLabStructure.FILTER_OFFSET_Z);
+		}
+		return point.poi != null ? point.poi : point.pos.up();
 	}
 
 	protected static void group(World world, CampaignTarget target, BlockPos center, int count, int minDist, int maxDist) {
@@ -772,7 +839,8 @@ public class CampaignSiteBuilder {
 	 * ------------------------------------------------- test command
 	 */
 
-	public static final String[] TEST_SITES = { "stash_house", "bandit_camp", "radio_mast", "hospital", "convoy", "prison_camp", "evac", "fuel_depot", "launch_point" };
+	public static final String[] TEST_SITES = { "stash_house", "bandit_camp", "radio_mast", "hospital", "convoy", "prison_camp", "evac", "fuel_depot", "launch_point",
+			"mutant_zone", "reactor_ruins", "legion_hq", "launch_site", "hive" };
 
 	/**
 	 * /tgstructure: builds a campaign place around pos, returns false for unknown names
@@ -801,6 +869,27 @@ public class CampaignSiteBuilder {
 		case "evac":
 			point = new CampaignPoint(pos, CampaignSite.EVAC);
 			break;
+		case "mutant_zone":
+			CampaignStructures.mutantZone(world, new CampaignPoint(pos, CampaignSite.MUTANT_ZONE), rnd);
+			return true;
+		case "reactor_ruins": {
+			CampaignPoint p = new CampaignPoint(pos, CampaignSite.REACTOR_RUINS);
+			CampaignStructures.reactorRuins(world, p, rnd);
+			CampaignStructures.fillChest(world, p.poi, TGItems.REACTOR_CORE);
+			return true;
+		}
+		case "legion_hq": {
+			CampaignPoint p = new CampaignPoint(pos, CampaignSite.LEGION_HQ);
+			CampaignStructures.legionHQ(world, p, rnd);
+			CampaignStructures.fillChest(world, p.poi, TGItems.CONTROL_MODULE);
+			return true;
+		}
+		case "launch_site":
+			CampaignStructures.launchSite(world, new CampaignPoint(pos, CampaignSite.LAUNCH_SITE), rnd);
+			return true;
+		case "hive":
+			CampaignStructures.hive(world, new CampaignPoint(pos, CampaignSite.HIVE), rnd);
+			return true;
 		case "fuel_depot":
 		case "launch_point":
 			point = new CampaignPoint(pos, "fuel_depot".equals(name) ? CampaignSite.MILITARY_BASE : CampaignSite.AIRFIELD);

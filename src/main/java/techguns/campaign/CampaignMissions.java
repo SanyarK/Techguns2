@@ -35,7 +35,7 @@ import techguns.campaign.CampaignMission.Wave;
 /**
  * The mission table of the story campaign "Dawn": 30 missions in 5 acts.
  * The story and the same table in readable form are in CAMPAIGN.md in the repository root.
- * Missions marked planned() are listed for the journal and implemented in a later update.
+ * Missions marked planned() would be listed in the journal only, all 30 missions are playable.
  */
 public class CampaignMissions {
 
@@ -117,48 +117,52 @@ public class CampaignMissions {
 						stack(() -> TGuns.scar, 1), shared(() -> TGItems.ASSAULTRIFLE_MAGAZINE, 8))));
 
 		/*
-		 * ACT IV "Plague" - mutants, the Warlord and the Prototype, 900-1250 blocks (planned)
+		 * ACT IV "Plague" - mutants, the Warlord and the Prototype, 900-1250 blocks
 		 */
-		add(mission(19, 4, COLLECT).count(5).dropFrom(CampaignTarget.MUTANT_WARRIOR, 0.5f)
-				.at(CampaignSite.MUTANT_ZONE, POST, 900, 1050).planned()
-				.reward(Reward.of("campaign/reward_act4", 1, 1000)));
-		add(mission(20, 4, BOSS).target(CampaignTarget.WARLORD, 1).at(CampaignSite.MUTANT_LAIR, POST, 1000, 1150).planned()
-				.reward(Reward.of("campaign/reward_act4", 2, 1200)));
-		add(mission(21, 4, REACH).at(CampaignSite.MUTAGEN_LAB, POST, 1100, 1250).remember("lab").planned()
-				.reward(Reward.of("campaign/reward_act4", 1, 1000)));
-		add(mission(22, 4, ITEM).item(() -> TGItems.MUTAGEN_SAMPLE).at(CampaignSite.MUTAGEN_LAB, POST, 1100, 1250).remember("lab").planned()
-				.reward(Reward.of("campaign/reward_act4", 1, 1100)));
-		add(mission(23, 4, BOSS).target(CampaignTarget.PROTOTYPE, 1).at(CampaignSite.MUTAGEN_LAB, POST, 1100, 1250).remember("lab").planned()
-				.reward(Reward.of("campaign/reward_act4", 2, 1500)));
+		add(mission(19, 4, COLLECT).item(() -> TGItems.TISSUE_SAMPLE).count(5).dropFrom(CampaignTarget.MUTANT_WARRIOR, 0.5f)
+				.at(CampaignSite.MUTANT_ZONE, POST, 900, 1050)
+				.reward(Reward.of("campaign/reward_act4", 1, 1000, stack(() -> TGuns.lasergun, 1), shared(() -> TGItems.ENERGY_CELL, 6))));
+		add(mission(20, 4, BOSS).target(CampaignTarget.WARLORD, 1).at(CampaignSite.MUTANT_LAIR, POST, 1000, 1150)
+				.reward(Reward.of("campaign/reward_act4", 2, 1200, stack(() -> TGuns.grenadelauncher, 1), shared(() -> TGItems.GRENADE_40MM, 16))));
+		add(mission(21, 4, REACH).at(CampaignSite.MUTAGEN_LAB, POST, 1100, 1250).remember("lab")
+				.reward(Reward.of("campaign/reward_act4", 1, 1000, stack(() -> TGItems.BANDAGE, 6))));
+		add(mission(22, 4, ITEM).item(() -> TGItems.MUTAGEN_SAMPLE).at(CampaignSite.MUTAGEN_LAB, POST, 1100, 1250).remember("lab")
+				.reward(Reward.of("campaign/reward_act4", 1, 1100, stack(() -> TGItems.RAD_AWAY, 2))));
+		add(mission(23, 4, BOSS).target(CampaignTarget.PROTOTYPE, 1).at(CampaignSite.MUTAGEN_LAB, POST, 1100, 1250).remember("lab")
+				.reward(Reward.of("campaign/reward_act4", 2, 1500, stack(() -> TGuns.gaussrifle, 1), shared(() -> TGItems.GAUSSRIFLE_SLUGS, 16))));
 		add(mission(24, 4, DEFEND).around(POST)
 				.waves(Wave.of(Group.of(CampaignTarget.MUTANT, 6)), Wave.of(Group.of(CampaignTarget.MUTANT, 8)),
 						Wave.of(Group.of(CampaignTarget.MUTANT_WARRIOR, 6)), Wave.of(Group.of(CampaignTarget.MUTANT_ELITE, 6)),
 						Wave.of(Group.of(CampaignTarget.MUTANT_ELITE, 4), Group.of(CampaignTarget.MUTANT_WARRIOR, 6)))
-				.inPerson().planned()
+				.inPerson()
 				.reward(Reward.of("campaign/reward_act4", 3, 2000, stack(() -> TGArmors.t3_power_Helmet, 1), stack(() -> TGArmors.t3_power_Chestplate, 1),
-						stack(() -> TGArmors.t3_power_Leggings, 1), stack(() -> TGArmors.t3_power_Boots, 1))));
+						stack(() -> TGArmors.t3_power_Leggings, 1), stack(() -> TGArmors.t3_power_Boots, 1), shared(() -> TGItems.ENERGY_CELL, 8),
+						stack(() -> TGuns.minigun, 1), shared(() -> TGItems.MINIGUN_DRUM, 4))));
 
 		/*
-		 * ACT V "Dawn" - the Purifier, the Hive and Chimera, 1200-1500 blocks (planned)
+		 * ACT V "Dawn" - the Purifier, the Hive and Chimera, 1200-1500 blocks
 		 */
-		add(mission(25, 5, COLLECT).count(3)
-				.places(POST, 1200, 1500, CampaignSite.REACTOR_RUINS, CampaignSite.LEGION_HQ, CampaignSite.MUTAGEN_LAB).inPerson().planned()
-				.reward(Reward.of("campaign/reward_act5", 2, 2000)));
+		add(mission(25, 5, COLLECT)
+				.places(POST, 1200, 1500, CampaignSite.REACTOR_RUINS, CampaignSite.LEGION_HQ, CampaignSite.MUTAGEN_LAB)
+				.components(() -> TGItems.REACTOR_CORE, () -> TGItems.CONTROL_MODULE, () -> TGItems.PURIFIER_FILTER).inPerson()
+				.reward(Reward.of("campaign/reward_act5", 2, 2000, stack(() -> TGuns.pulserifle, 1), shared(() -> TGItems.ADVANCED_MAGAZINE, 6))));
 		add(mission(26, 5, ESCORT).count(1).at(CampaignSite.LAUNCH_SITE, POST, 1300, 1500).remember("launch")
-				.escortTo(Destination.SITE).raids(CampaignTarget.MUTANT, 45, 4).planned()
-				.reward(Reward.of("campaign/reward_act5", 2, 2000)));
-		add(mission(27, 5, DEFEND).at(CampaignSite.LAUNCH_SITE, POST, 1300, 1500).remember("launch")
+				.escortTo(Destination.SITE).raids(CampaignTarget.MUTANT, 45, 4)
+				.reward(Reward.of("campaign/reward_act5", 2, 2000, stack(() -> TGuns.guidedmissilelauncher, 1), shared(() -> TGItems.ROCKET, 8))));
+		add(mission(27, 5, DEFEND).at(CampaignSite.LAUNCH_SITE, POST, 1300, 1500).remember("launch").seconds(180)
 				.waves(Wave.of(Group.of(CampaignTarget.MUTANT, 8)), Wave.of(Group.of(CampaignTarget.MUTANT_ELITE, 6), Group.of(CampaignTarget.JET, 1)),
 						Wave.of(Group.of(CampaignTarget.MUTANT_ELITE, 6), Group.of(CampaignTarget.MUTANT_WARRIOR, 6), Group.of(CampaignTarget.JET, 2)))
-				.planned()
-				.reward(Reward.of("campaign/reward_act5", 2, 2500)));
-		add(mission(28, 5, REACH).at(CampaignSite.HIVE, POST, 1400, 1500).remember("hive").planned()
+				.reward(Reward.of("campaign/reward_act5", 2, 2500, shared(() -> TGItems.ENERGY_CELL, 8), stack(() -> TGItems.BANDAGE, 8))));
+		add(mission(28, 5, REACH).at(CampaignSite.HIVE, POST, 1400, 1500).remember("hive")
 				.reward(Reward.of("campaign/reward_act5", 1, 2000)));
-		add(mission(29, 5, BOSS).count(1).at(CampaignSite.HIVE, POST, 1400, 1500).remember("hive").planned()
+		add(mission(29, 5, BOSS).target(CampaignTarget.CHIMERA, 1).at(CampaignSite.HIVE, POST, 1400, 1500).remember("hive")
 				.reward(Reward.of("campaign/reward_act5", 3, 5000)));
-		add(mission(30, 5, TALK).inPerson().planned()
-				.reward(Reward.of("campaign/reward_act5", 3, 5000, stack(() -> TGArmors.t4_power_Helmet, 1), stack(() -> TGArmors.t4_power_Chestplate, 1),
-						stack(() -> TGArmors.t4_power_Leggings, 1), stack(() -> TGArmors.t4_power_Boots, 1), stack(() -> TGuns.goldenrevolver, 1))));
+		add(mission(30, 5, TALK).inPerson()
+				.reward(Reward.of("campaign/reward_act5", 3, 5000, HeroItems.hero(() -> TGArmors.t4_power_Helmet, "helmet"),
+						HeroItems.hero(() -> TGArmors.t4_power_Chestplate, "chestplate"), HeroItems.hero(() -> TGArmors.t4_power_Leggings, "leggings"),
+						HeroItems.hero(() -> TGArmors.t4_power_Boots, "boots"), HeroItems.hero(() -> TGuns.goldenrevolver, "revolver"),
+						HeroItems.hero(() -> TGuns.gaussrifle, "rifle"), shared(() -> TGItems.ENERGY_CELL, 12), shared(() -> TGItems.GAUSSRIFLE_SLUGS, 24),
+						shared(() -> TGItems.PISTOL_ROUNDS, 32))));
 	}
 
 	protected static void add(CampaignMission.Builder builder) {
