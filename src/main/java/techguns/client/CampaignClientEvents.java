@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -66,6 +67,7 @@ public class CampaignClientEvents {
 		}
 		ScaledResolution res = event.getResolution();
 		Gui.drawRect(0, 0, res.getScaledWidth(), res.getScaledHeight(), (alpha << 24) | 0xFFFFF4);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	@SubscribeEvent
