@@ -248,6 +248,7 @@ import techguns.entities.npcs.MutantWarrior;
 import techguns.entities.npcs.NPCTurret;
 import techguns.entities.npcs.Outcast;
 import techguns.entities.npcs.Paratrooper;
+import techguns.entities.npcs.LegionPrisoner;
 import techguns.entities.npcs.PrototypeBoss;
 import techguns.entities.npcs.PsychoSteve;
 import techguns.entities.npcs.SkeletonSoldier;
@@ -1164,6 +1165,7 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(CommanderNPC.class, m -> new RenderTexturedSoldier<CommanderNPC>(m, new ResourceLocation(Techguns.MODID,"textures/entity/commander.png")));
 		RenderingRegistry.registerEntityRenderingHandler(CapturedScientist.class, m -> new RenderTexturedSoldier<CapturedScientist>(m, new ResourceLocation(Techguns.MODID,"textures/entity/scientist.png")));
 		RenderingRegistry.registerEntityRenderingHandler(PrototypeBoss.class, m -> new RenderTexturedMutant(m, new ResourceLocation(Techguns.MODID,"textures/entity/prototype.png")));
+		RenderingRegistry.registerEntityRenderingHandler(LegionPrisoner.class, m -> new RenderTexturedSoldier<LegionPrisoner>(m, new ResourceLocation(Techguns.MODID,"textures/entity/prisoner.png")));
 	}
 	
 	

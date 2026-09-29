@@ -290,6 +290,8 @@ public class TGItems implements ITGInitializer{
 	public static ItemGPSNavigator GPS_NAVIGATOR;
 	public static ItemQuestItem INTEL_DOCUMENTS;
 	public static ItemQuestItem MUTAGEN_SAMPLE;
+	public static ItemQuestItem ANTENNA_PARTS;
+	public static ItemQuestItem MEDICINE;
 
 	//apocalypse start kit
 	public static ItemBandage BANDAGE;
@@ -549,6 +551,8 @@ public class TGItems implements ITGInitializer{
 		GPS_NAVIGATOR = new ItemGPSNavigator("gps_navigator");
 		INTEL_DOCUMENTS = new ItemQuestItem("intel_documents", Techguns.MODID + ".campaign.item.intel.tooltip", true);
 		MUTAGEN_SAMPLE = new ItemQuestItem("mutagen_sample", Techguns.MODID + ".campaign.item.sample.tooltip", true);
+		ANTENNA_PARTS = new ItemQuestItem("antenna_parts", Techguns.MODID + ".campaign.item.antenna_parts.tooltip", false);
+		MEDICINE = new ItemQuestItem("medicine", Techguns.MODID + ".campaign.item.medicine.tooltip", false);
 
 		BANDAGE = new ItemBandage("bandage");
 

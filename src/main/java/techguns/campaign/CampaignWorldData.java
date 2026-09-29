@@ -1,18 +1,26 @@
 package techguns.campaign;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
+import net.minecraftforge.common.util.Constants;
 
 /**
- * World saved data of the story campaign. Stores for every player the current mission objective
- * point, whether the objective structure was already placed, and the position of the player's
- * command post (where the commander NPC lives).
+ * World saved data of the story campaign (overworld). Stores for every player the objective points
+ * of the current mission, the home (start bunker), the command post and remembered sites
+ * (e.g. the airfield scouted in act II that is attacked at the end of act III).
  */
 public class CampaignWorldData extends WorldSavedData {
 
@@ -20,6 +28,9 @@ public class CampaignWorldData extends WorldSavedData {
 
 	/** entries are stored as compounds keyed by the player uuid */
 	protected NBTTagCompound players = new NBTTagCompound();
+
+	/** parsed objective points of the players, written back with {@link #savePoints(EntityPlayer)} */
+	protected final Map<UUID, List<CampaignPoint>> pointCache = new HashMap<>();
 
 	public CampaignWorldData() {
 		super(DATA_NAME);
@@ -40,53 +51,97 @@ public class CampaignWorldData extends WorldSavedData {
 	}
 
 	protected NBTTagCompound getEntry(EntityPlayer player) {
-		UUID id = player.getUniqueID();
-		if (!this.players.hasKey(id.toString())) {
-			this.players.setTag(id.toString(), new NBTTagCompound());
+		String id = player.getUniqueID().toString();
+		if (!this.players.hasKey(id)) {
+			this.players.setTag(id, new NBTTagCompound());
 		}
-		return this.players.getCompoundTag(id.toString());
+		NBTTagCompound entry = this.players.getCompoundTag(id);
+		//objective of the old 10 mission campaign
+		if (entry.hasKey("placed")) {
+			entry.removeTag("mission");
+			entry.removeTag("placed");
+			entry.removeTag("x");
+			entry.removeTag("y");
+			entry.removeTag("z");
+			this.markDirty();
+		}
+		return entry;
 	}
 
-	public void setObjective(EntityPlayer player, int mission, BlockPos pos) {
-		NBTTagCompound entry = this.getEntry(player);
-		entry.setInteger("mission", mission);
-		entry.setInteger("x", pos.getX());
-		entry.setInteger("y", pos.getY());
-		entry.setInteger("z", pos.getZ());
-		entry.setBoolean("placed", false);
+	protected static BlockPos readPos(NBTTagCompound tag, String prefix) {
+		return new BlockPos(tag.getInteger(prefix + "X"), tag.getInteger(prefix + "Y"), tag.getInteger(prefix + "Z"));
+	}
+
+	protected static void writePos(NBTTagCompound tag, String prefix, BlockPos pos) {
+		tag.setInteger(prefix + "X", pos.getX());
+		tag.setInteger(prefix + "Y", pos.getY());
+		tag.setInteger(prefix + "Z", pos.getZ());
+	}
+
+	/*
+	 * ------------------------------------------------- objective points of the current mission
+	 */
+
+	/**
+	 * @return the mission the stored points belong to, 0 = none
+	 */
+	public int getPointsMission(EntityPlayer player) {
+		return this.getEntry(player).getInteger("pointsMission");
+	}
+
+	/**
+	 * the list is cached, change the points and call {@link #savePoints(EntityPlayer)}
+	 */
+	public List<CampaignPoint> getPoints(EntityPlayer player) {
+		List<CampaignPoint> list = this.pointCache.get(player.getUniqueID());
+		if (list == null) {
+			list = new ArrayList<>();
+			NBTTagList tags = this.getEntry(player).getTagList("points", Constants.NBT.TAG_COMPOUND);
+			for (int i = 0; i < tags.tagCount(); i++) {
+				list.add(CampaignPoint.fromNBT(tags.getCompoundTagAt(i)));
+			}
+			this.pointCache.put(player.getUniqueID(), list);
+		}
+		return list;
+	}
+
+	public void setPoints(EntityPlayer player, int mission, List<CampaignPoint> points) {
+		this.pointCache.put(player.getUniqueID(), new ArrayList<>(points));
+		this.getEntry(player).setInteger("pointsMission", mission);
+		this.savePoints(player);
+	}
+
+	public void savePoints(EntityPlayer player) {
+		NBTTagList tags = new NBTTagList();
+		for (CampaignPoint p : this.getPoints(player)) {
+			tags.appendTag(p.toNBT());
+		}
+		this.getEntry(player).setTag("points", tags);
 		this.markDirty();
 	}
 
-	public boolean hasObjective(EntityPlayer player) {
-		return this.getEntry(player).hasKey("mission");
-	}
-
-	public int getObjectiveMission(EntityPlayer player) {
-		return this.getEntry(player).getInteger("mission");
-	}
-
-	public BlockPos getObjectivePos(EntityPlayer player) {
+	public void clearPoints(EntityPlayer player) {
 		NBTTagCompound entry = this.getEntry(player);
-		return new BlockPos(entry.getInteger("x"), entry.getInteger("y"), entry.getInteger("z"));
-	}
-
-	public boolean isObjectivePlaced(EntityPlayer player) {
-		return this.getEntry(player).getBoolean("placed");
-	}
-
-	public void setObjectivePlaced(EntityPlayer player, BlockPos actualPos) {
-		NBTTagCompound entry = this.getEntry(player);
-		entry.setBoolean("placed", true);
-		entry.setInteger("x", actualPos.getX());
-		entry.setInteger("y", actualPos.getY());
-		entry.setInteger("z", actualPos.getZ());
+		entry.removeTag("points");
+		entry.removeTag("pointsMission");
+		this.pointCache.remove(player.getUniqueID());
 		this.markDirty();
 	}
 
-	public void clearObjective(EntityPlayer player) {
-		NBTTagCompound entry = this.getEntry(player);
-		entry.removeTag("mission");
-		entry.removeTag("placed");
+	/*
+	 * ------------------------------------------------- home, command post, remembered sites
+	 */
+
+	public boolean hasHome(EntityPlayer player) {
+		return this.getEntry(player).hasKey("homeX");
+	}
+
+	public BlockPos getHome(EntityPlayer player) {
+		return readPos(this.getEntry(player), "home");
+	}
+
+	public void setHome(EntityPlayer player, BlockPos pos) {
+		writePos(this.getEntry(player), "home", pos);
 		this.markDirty();
 	}
 
@@ -94,27 +149,42 @@ public class CampaignWorldData extends WorldSavedData {
 		return this.getEntry(player).hasKey("postX");
 	}
 
+	/**
+	 * ground level at the center of the post, the commander stands one block above
+	 */
 	public BlockPos getCommandPost(EntityPlayer player) {
-		NBTTagCompound entry = this.getEntry(player);
-		return new BlockPos(entry.getInteger("postX"), entry.getInteger("postY"), entry.getInteger("postZ"));
+		return readPos(this.getEntry(player), "post");
 	}
 
 	public void setCommandPost(EntityPlayer player, BlockPos pos) {
+		writePos(this.getEntry(player), "post", pos);
+		this.markDirty();
+	}
+
+	@Nullable
+	public CampaignPoint getSite(EntityPlayer player, String key) {
+		NBTTagCompound sites = this.getEntry(player).getCompoundTag("sites");
+		return sites.hasKey(key) ? CampaignPoint.fromNBT(sites.getCompoundTag(key)) : null;
+	}
+
+	public void setSite(EntityPlayer player, String key, CampaignPoint point) {
 		NBTTagCompound entry = this.getEntry(player);
-		entry.setInteger("postX", pos.getX());
-		entry.setInteger("postY", pos.getY());
-		entry.setInteger("postZ", pos.getZ());
+		NBTTagCompound sites = entry.getCompoundTag("sites");
+		sites.setTag(key, point.toNBT());
+		entry.setTag("sites", sites);
 		this.markDirty();
 	}
 
 	public void clearAll(EntityPlayer player) {
 		this.players.removeTag(player.getUniqueID().toString());
+		this.pointCache.remove(player.getUniqueID());
 		this.markDirty();
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
 		this.players = nbt.getCompoundTag("players");
+		this.pointCache.clear();
 	}
 
 	@Override

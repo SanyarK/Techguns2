@@ -19,18 +19,18 @@ import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import techguns.TGConfig;
 import techguns.api.npc.factions.TGNpcFaction;
-import techguns.campaign.CampaignMission;
 import techguns.campaign.TGCampaign;
-import techguns.capabilities.TGCampaignData;
 
 /**
- * Friendly NPC of the rescue mission. Held captive in a bunker; once freed he follows
- * his rescuer and has to be escorted to the commander.
+ * Friendly NPC of the escort missions. Held captive by the Legion; once freed he follows
+ * his rescuer and has to be escorted to the commander or an extraction point.
  */
 public class CapturedScientist extends GenericNPC {
 
 	protected boolean following = false;
 	protected UUID rescuer = null;
+	/** brought to the destination of the escort mission, does not count again */
+	protected boolean delivered = false;
 
 	public CapturedScientist(World world) {
 		super(world);
@@ -73,6 +73,19 @@ public class CapturedScientist extends GenericNPC {
 		return this.rescuer != null && this.rescuer.equals(player.getUniqueID());
 	}
 
+	public boolean isDelivered() {
+		return this.delivered;
+	}
+
+	public void setDelivered() {
+		this.delivered = true;
+	}
+
+	/** first part of the chat message keys, prisoners use their own texts */
+	protected String getMessagePrefix() {
+		return "scientist";
+	}
+
 	public EntityPlayer getRescuerPlayer() {
 		return this.rescuer == null ? null : this.world.getPlayerEntityByUUID(this.rescuer);
 	}
@@ -92,19 +105,22 @@ public class CapturedScientist extends GenericNPC {
 			return false;
 		}
 		if (!this.world.isRemote && player instanceof EntityPlayerMP) {
-			if (this.rescuer == null) {
-				TGCampaignData data = TGCampaignData.get(player);
-				if (TGConfig.campaignEnabled && data != null && data.getMission() == CampaignMission.RESCUE.id
-						&& data.getState() == TGCampaignData.STATE_ACTIVE) {
+			String prefix = "techguns.campaign.msg." + this.getMessagePrefix();
+			if (this.delivered) {
+				player.sendMessage(new TextComponentTranslation(prefix + "_safe"));
+			} else if (this.rescuer == null) {
+				if (TGConfig.campaignEnabled && TGCampaign.canFreeCaptive((EntityPlayerMP) player)) {
 					this.rescuer = player.getUniqueID();
 					this.following = true;
-					player.sendMessage(new TextComponentTranslation("techguns.campaign.msg.scientist_freed").setStyle(new Style().setColor(TextFormatting.GREEN)));
+					this.enablePersistence();
+					player.sendMessage(new TextComponentTranslation(prefix + "_freed").setStyle(new Style().setColor(TextFormatting.GREEN)));
+					TGCampaign.onCaptiveFreed((EntityPlayerMP) player);
 				} else {
-					player.sendMessage(new TextComponentTranslation("techguns.campaign.msg.scientist_idle"));
+					player.sendMessage(new TextComponentTranslation(prefix + "_idle"));
 				}
 			} else if (this.isRescuer(player)) {
 				this.following = !this.following;
-				player.sendMessage(new TextComponentTranslation(this.following ? "techguns.campaign.msg.scientist_follow" : "techguns.campaign.msg.scientist_wait"));
+				player.sendMessage(new TextComponentTranslation(this.following ? "techguns.campaign.msg.captive_follow" : "techguns.campaign.msg.captive_wait"));
 			}
 		}
 		return true;
@@ -112,10 +128,10 @@ public class CapturedScientist extends GenericNPC {
 
 	@Override
 	public void onDeath(DamageSource cause) {
-		if (!this.world.isRemote && this.rescuer != null) {
+		if (!this.world.isRemote && this.rescuer != null && !this.delivered) {
 			EntityPlayer player = this.getRescuerPlayer();
 			if (player instanceof EntityPlayerMP) {
-				TGCampaign.onScientistDied((EntityPlayerMP) player);
+				TGCampaign.onCaptiveDied((EntityPlayerMP) player);
 			}
 		}
 		super.onDeath(cause);
@@ -137,6 +153,7 @@ public class CapturedScientist extends GenericNPC {
 	public void writeEntityToNBT(NBTTagCompound compound) {
 		super.writeEntityToNBT(compound);
 		compound.setBoolean("following", this.following);
+		compound.setBoolean("delivered", this.delivered);
 		if (this.rescuer != null) {
 			compound.setUniqueId("rescuer", this.rescuer);
 		}
@@ -146,6 +163,7 @@ public class CapturedScientist extends GenericNPC {
 	public void readEntityFromNBT(NBTTagCompound compound) {
 		super.readEntityFromNBT(compound);
 		this.following = compound.getBoolean("following");
+		this.delivered = compound.getBoolean("delivered");
 		if (compound.hasUniqueId("rescuer")) {
 			this.rescuer = compound.getUniqueId("rescuer");
 		}

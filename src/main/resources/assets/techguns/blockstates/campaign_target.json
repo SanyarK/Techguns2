@@ -1,0 +1,6 @@
+{
+    "variants": {
+        "type=fuel_tank": { "model": "techguns:campaign_fuel_tank" },
+        "type=flight_control": { "model": "techguns:campaign_flight_control" }
+    }
+}

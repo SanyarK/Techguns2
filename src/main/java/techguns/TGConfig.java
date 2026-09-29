@@ -79,8 +79,7 @@ public class TGConfig {
 	//story campaign
 	public static boolean campaignEnabled;
 	public static boolean campaignGiveRadio;
-	public static int campaignMinDistance;
-	public static int campaignMaxDistance;
+	public static int campaignDistancePercent;
 
 	//apocalypse world type, wasteland biomes, ruins and the start bunker
 	public static boolean apocalypseWorldType;
@@ -252,13 +251,11 @@ public class TGConfig {
 		
 		biomeBlacklist = config.getStringList("BiomeBlacklist", "NPC Spawn", new String[]{""}, "Biome Registry names (e.g: minecraft:mushroom_island) that are excluded from Techguns monster spawning");
 
-		campaignEnabled = config.getBoolean("CampaignEnabled", "Campaign", true, "Enable the story campaign (commander NPC, radio, mission chain, mutagen lab and the Prototype boss)");
+		campaignEnabled = config.getBoolean("CampaignEnabled", "Campaign", true, "Enable the story campaign 'Dawn' (30 missions: radio, commander NPC, GPS objectives, Legion, mutants and bosses)");
 
-		campaignGiveRadio = config.getBoolean("CampaignGiveRadio", "Campaign", true, "Give new players a radio when they join the world for the first time");
+		campaignGiveRadio = config.getBoolean("CampaignGiveRadio", "Campaign", true, "Give new players a radio when they join the world for the first time (players who start in the start bunker answer the radio on its wall instead)");
 
-		campaignMinDistance = config.getInt("CampaignMinDistance", "Campaign", 300, 50, 100000, "Minimum distance from the player at which campaign mission objectives are placed");
-
-		campaignMaxDistance = config.getInt("CampaignMaxDistance", "Campaign", 600, 100, 100000, "Maximum distance from the player at which campaign mission objectives are placed");
+		campaignDistancePercent = config.getInt("CampaignDistancePercent", "Campaign", 100, 10, 500, "Scales the distances of the mission objectives in percent (the story goes from about 100 blocks in act I to 1500 blocks in act V)");
 
 		apocalypseWorldType = config.getBoolean("ApocalypseWorldType", APOCALYPSE, true, "Add the 'Apocalypse' world type: only wasteland biomes, ruined cities and a start bunker. Worlds created with it load as default worlds when this is disabled.");
 

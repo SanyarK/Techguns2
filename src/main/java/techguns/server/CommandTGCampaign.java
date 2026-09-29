@@ -13,17 +13,21 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import techguns.Techguns;
 import techguns.campaign.CampaignMission;
+import techguns.campaign.CampaignMissions;
 import techguns.campaign.TGCampaign;
 import techguns.capabilities.TGCampaignData;
 
 /**
  * Operator command to test the story campaign:
- * /tgcampaign set <1-10> jumps to a mission, /tgcampaign reset restarts, /tgcampaign info shows the state.
+ * /tgcampaign set <1-30> jumps to a mission, /tgcampaign complete finishes the current mission,
+ * /tgcampaign reset restarts, /tgcampaign info shows the state.
  */
 public class CommandTGCampaign extends CommandBase {
 
-	protected static final String[] OPTIONS = {"set", "reset", "info"};
+	protected static final String[] OPTIONS = {"set", "complete", "reset", "info"};
 
 	@Override
 	public String getName() {
@@ -32,7 +36,7 @@ public class CommandTGCampaign extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/tgcampaign <set <1-" + TGCampaignData.LAST_MISSION + ">|reset|info>";
+		return "/tgcampaign <set <1-" + TGCampaignData.LAST_MISSION + ">|complete|reset|info>";
 	}
 
 	@Override
@@ -52,26 +56,40 @@ public class CommandTGCampaign extends CommandBase {
 		}
 
 		switch (args[0]) {
-		case "set":
+		case "set": {
 			if (args.length < 2) {
 				throw new WrongUsageException(this.getUsage(sender));
 			}
 			int mission = parseInt(args[1], TGCampaignData.FIRST_MISSION, TGCampaignData.LAST_MISSION);
 			TGCampaign.setMission(player, mission);
-			sender.sendMessage(new TextComponentString("Campaign mission set to " + mission + ". Use the radio to accept the mission briefing."));
+			CampaignMission m = CampaignMissions.byId(mission);
+			sender.sendMessage(new TextComponentTranslation(Techguns.MODID + ".campaign.cmd.set", mission, new TextComponentTranslation(m.getTitleKey())));
+			if (!m.playable) {
+				sender.sendMessage(new TextComponentTranslation(Techguns.MODID + ".campaign.cmd.planned", CampaignMissions.lastPlayable()));
+			}
 			break;
+		}
+		case "complete": {
+			int before = data.getMission();
+			if (TGCampaign.completeCurrent(player)) {
+				sender.sendMessage(new TextComponentTranslation(Techguns.MODID + ".campaign.cmd.completed", before));
+			} else {
+				sender.sendMessage(new TextComponentTranslation(Techguns.MODID + ".campaign.cmd.nothing"));
+			}
+			break;
+		}
 		case "reset":
 			TGCampaign.reset(player);
-			sender.sendMessage(new TextComponentString("Campaign progress reset. Use the radio to start over."));
+			sender.sendMessage(new TextComponentTranslation(Techguns.MODID + ".campaign.cmd.reset"));
 			break;
-		case "info":
-			CampaignMission m = CampaignMission.byId(data.getMission());
+		case "info": {
+			CampaignMission m = CampaignMissions.byId(data.getMission());
 			StringBuilder sb = new StringBuilder();
-			sb.append("Mission ").append(data.getMission());
+			sb.append("Mission ").append(data.getMission()).append("/").append(TGCampaignData.LAST_MISSION);
 			if (m != null) {
-				sb.append(" (").append(m.name()).append(")");
+				sb.append(" (act ").append(m.act).append(", ").append(m.type.name()).append(m.playable ? "" : ", planned").append(")");
 			}
-			sb.append(" state=").append(data.getState()).append(" progress=").append(data.getProgress());
+			sb.append(" state=").append(data.getState()).append(" progress=").append(data.getProgress()).append("/").append(data.getProgress2());
 			if (data.hasObjective()) {
 				BlockPos o = data.getObjective();
 				sb.append(" objective=").append(o.getX()).append(",").append(o.getY()).append(",").append(o.getZ());
@@ -81,6 +99,7 @@ public class CommandTGCampaign extends CommandBase {
 			}
 			sender.sendMessage(new TextComponentString(sb.toString()));
 			break;
+		}
 		default:
 			throw new WrongUsageException(this.getUsage(sender));
 		}

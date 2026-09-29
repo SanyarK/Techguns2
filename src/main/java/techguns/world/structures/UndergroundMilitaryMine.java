@@ -41,6 +41,9 @@ public class UndergroundMilitaryMine extends WorldgenStructure {
 	protected static final int ROOM_MINING = 2;
 	protected static final int ROOM_STAIRS = 3;
 
+	/** false: no General in the command center (the campaign fights him in his own bunker) */
+	public boolean withGeneral = true;
+
 	public UndergroundMilitaryMine() {
 		super(SURFACE_SIZE, 40, SURFACE_SIZE, SURFACE_SIZE, 40, SURFACE_SIZE);
 		this.setXZSize(SURFACE_SIZE, SURFACE_SIZE);
@@ -57,6 +60,16 @@ public class UndergroundMilitaryMine extends WorldgenStructure {
 			return;
 		}
 		this.setBlocks(world, x, y - 1, z, SURFACE_SIZE, sizeY, SURFACE_SIZE, 0, getBiomeColorTypeFromBiome(biome), rnd);
+	}
+
+	/** walking level of the first underground level for the given ground level */
+	public static int levelOne(int ground) {
+		return Math.max(20, ground - 24);
+	}
+
+	/** walking level of the second underground level (command center) for the given ground level */
+	public static int levelTwo(int ground) {
+		return levelOne(ground) - 10;
 	}
 
 	/** x coordinate for a point 'dist' blocks away from the center in direction dir (0=N,1=E,2=S,3=W) with a sideways offset */
@@ -118,8 +131,8 @@ public class UndergroundMilitaryMine extends WorldgenStructure {
 		int ground = posY;
 		int cx = posX + SURFACE_SIZE / 2;
 		int cz = posZ + SURFACE_SIZE / 2;
-		int level1 = Math.max(20, ground - 24);
-		int level2 = level1 - 10;
+		int level1 = levelOne(ground);
+		int level2 = levelTwo(ground);
 
 		IBlockState wall = StructureBuilder.concrete(EnumConcreteType.CONCRETE_GREY);
 		IBlockState floor = StructureBuilder.concrete(EnumConcreteType.CONCRETE_GREY_DARK);
@@ -437,7 +450,9 @@ public class UndergroundMilitaryMine extends WorldgenStructure {
 		b.lootChest(px(cx, dir, ccStart + 10, 2), level2, pz(cz, dir, ccStart + 10, 2), chestFacing, CHEST_LOOT);
 
 		//the boss and his guards
-		b.spawner(px(cx, dir, ccStart + 8, 0), level2, pz(cz, dir, ccStart + 8, 0), EnumMonsterSpawnerType.SOLDIER_SPAWN, 1, 1, 60, 0, General.class);
+		if (this.withGeneral) {
+			b.spawner(px(cx, dir, ccStart + 8, 0), level2, pz(cz, dir, ccStart + 8, 0), EnumMonsterSpawnerType.SOLDIER_SPAWN, 1, 1, 60, 0, General.class);
+		}
 		b.spawner(px(cx, dir, ccStart + 3, -4), level2, pz(cz, dir, ccStart + 3, -4), EnumMonsterSpawnerType.SOLDIER_SPAWN, 3, 1, 300, 1, EliteSoldier.class);
 		b.spawner(px(cx, dir, ccStart + 3, 4), level2, pz(cz, dir, ccStart + 3, 4), EnumMonsterSpawnerType.SOLDIER_SPAWN, 3, 1, 300, 1, EliteSoldier.class);
 	}
