@@ -22,6 +22,7 @@ import techguns.blocks.BlockBioblob;
 import techguns.blocks.BlockDebugMarker;
 import techguns.blocks.BlockMilitaryCrate;
 import techguns.blocks.BlockOreCluster;
+import techguns.blocks.BlockCampaignTarget;
 import techguns.blocks.BlockRadioStation;
 import techguns.blocks.BlockSandbags;
 import techguns.blocks.BlockTGCamoNet;
@@ -127,6 +128,8 @@ public class TGBlocks implements ITGInitializer{
 	public static BlockOreDrill ORE_DRILL_BLOCK;
 	
 	public static BlockRadioStation RADIO_STATION;
+
+	public static BlockCampaignTarget CAMPAIGN_TARGET;
 	
 	public void registerBlocks(RegistryEvent.Register<Block> event) {
 		BLOCKLIST.forEach(b -> b.registerBlock(event));
@@ -189,6 +192,7 @@ public class TGBlocks implements ITGInitializer{
 		ORE_DRILL_BLOCK = new BlockOreDrill("oredrill");
 		
 		RADIO_STATION = new BlockRadioStation("radio_station");
+		CAMPAIGN_TARGET = new BlockCampaignTarget("campaign_target");
 		
 		//if (TGConfig.debug) {
 		DEBUG_BLOCK = new BlockDebugMarker("debugblock", Material.GROUND);

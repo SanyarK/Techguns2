@@ -1,0 +1,83 @@
+{
+    "pools": [
+        {
+            "name": "medical",
+            "rolls": {
+                "min": 2,
+                "max": 3
+            },
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "weight": 2,
+                    "name": "techguns:blocks/military_crate_medical"
+                },
+                {
+                    "type": "item",
+                    "weight": 2,
+                    "name": "techguns:bandage",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 3
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "junk",
+            "rolls": {
+                "min": 1,
+                "max": 2
+            },
+            "entries": [
+                {
+                    "type": "item",
+                    "weight": 2,
+                    "name": "minecraft:paper",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 4
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "weight": 2,
+                    "name": "minecraft:glass_bottle",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 3
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "weight": 1,
+                    "name": "minecraft:string",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 3
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

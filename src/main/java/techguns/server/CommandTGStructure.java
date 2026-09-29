@@ -15,6 +15,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import techguns.campaign.CampaignSiteBuilder;
 import techguns.events.MilitaryExpansionEventHandler;
 import techguns.world.structures.Airfield;
 import techguns.world.structures.BunkerComplex;
@@ -33,7 +34,8 @@ import techguns.world.wasteland.WastelandRuins;
 public class CommandTGStructure extends CommandBase {
 
 	protected static final String[] OPTIONS = {"underground_mine", "airfield", "bunker", "mutant_lair", "mutagen_lab", "command_post", "airraid",
-		"city_block", "ruined_building", "ruined_house", "burnt_house", "gas_station", "radio_tower", "crater", "road", "car_wreck", "shipwreck"};
+		"city_block", "ruined_building", "ruined_house", "burnt_house", "gas_station", "radio_tower", "crater", "road", "car_wreck", "shipwreck",
+		"stash_house", "bandit_camp", "radio_mast", "hospital", "convoy", "prison_camp", "evac", "fuel_depot", "launch_point"};
 
 	@Override
 	public String getName() {
@@ -42,7 +44,7 @@ public class CommandTGStructure extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/tgstructure <underground_mine|airfield|bunker|mutant_lair|mutagen_lab|command_post|airraid|city_block|ruined_building|ruined_house|burnt_house|gas_station|radio_tower|crater|road|car_wreck|shipwreck>";
+		return "/tgstructure <underground_mine|airfield|bunker|mutant_lair|mutagen_lab|command_post|airraid|city_block|ruined_building|ruined_house|burnt_house|gas_station|radio_tower|crater|road|car_wreck|shipwreck|stash_house|bandit_camp|radio_mast|hospital|convoy|prison_camp|evac|fuel_depot|launch_point>";
 	}
 
 	@Override
@@ -66,6 +68,12 @@ public class CommandTGStructure extends CommandBase {
 			} else {
 				sender.sendMessage(new TextComponentString("Could not spawn the jet, try again or increase the render distance."));
 			}
+			return;
+		}
+
+		//places of the campaign missions
+		if (CampaignSiteBuilder.placeForTest(args[0], world, pos, rnd)) {
+			sender.sendMessage(new TextComponentString("Placed campaign site " + args[0] + " around " + pos.getX() + " " + pos.getZ() + "."));
 			return;
 		}
 

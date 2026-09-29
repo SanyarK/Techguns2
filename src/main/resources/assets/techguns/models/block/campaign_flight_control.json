@@ -1,0 +1,7 @@
+{
+    "parent": "block/cube_column",
+    "textures": {
+        "end": "techguns:blocks/campaign_flight_control_top",
+        "side": "techguns:blocks/campaign_flight_control_side"
+    }
+}

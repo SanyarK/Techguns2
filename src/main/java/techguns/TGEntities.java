@@ -33,6 +33,7 @@ import techguns.entities.npcs.MutantWarrior;
 import techguns.entities.npcs.NPCTurret;
 import techguns.entities.npcs.Outcast;
 import techguns.entities.npcs.Paratrooper;
+import techguns.entities.npcs.LegionPrisoner;
 import techguns.entities.npcs.PrototypeBoss;
 import techguns.entities.npcs.PsychoSteve;
 import techguns.entities.npcs.SkeletonSoldier;
@@ -158,6 +159,7 @@ public class TGEntities implements ITGInitializer {
 		registerModEntityWithEgg(CommanderNPC.class, "CommanderNPC", 0x1e2b16, 0x4a90d9);
 		registerModEntityWithEgg(CapturedScientist.class, "CapturedScientist", 0xf0f0f0, 0x4a90d9);
 		registerModEntityWithEgg(PrototypeBoss.class, "PrototypeBoss", 0x3a5a2a, 0x9b30ff);
+		registerModEntityWithEgg(LegionPrisoner.class, "LegionPrisoner", 0x8a7a5a, 0xd96b1e);
 
 	}
 
