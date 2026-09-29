@@ -177,6 +177,7 @@ import techguns.client.render.entities.npcs.RenderPsychoSteve;
 import techguns.client.render.entities.npcs.RenderSkeletonSoldier;
 import techguns.client.render.entities.npcs.RenderStormTrooper;
 import techguns.client.render.entities.npcs.RenderSuperMutant;
+import techguns.client.render.entities.npcs.RenderTexturedMutant;
 import techguns.client.render.entities.npcs.RenderTexturedSoldier;
 import techguns.client.render.entities.npcs.RenderZombieFarmer;
 import techguns.client.render.entities.npcs.RenderZombieMiner;
@@ -235,6 +236,8 @@ import techguns.entities.npcs.Bandit;
 import techguns.entities.npcs.Commando;
 import techguns.entities.npcs.CyberDemon;
 import techguns.entities.npcs.DictatorDave;
+import techguns.entities.npcs.CapturedScientist;
+import techguns.entities.npcs.CommanderNPC;
 import techguns.entities.npcs.EliteSoldier;
 import techguns.entities.npcs.General;
 import techguns.entities.npcs.Ghastling;
@@ -245,6 +248,7 @@ import techguns.entities.npcs.MutantWarrior;
 import techguns.entities.npcs.NPCTurret;
 import techguns.entities.npcs.Outcast;
 import techguns.entities.npcs.Paratrooper;
+import techguns.entities.npcs.PrototypeBoss;
 import techguns.entities.npcs.PsychoSteve;
 import techguns.entities.npcs.SkeletonSoldier;
 import techguns.entities.npcs.StormTrooper;
@@ -1156,6 +1160,10 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(MutantWarrior.class, RenderSuperMutant::new);
 		RenderingRegistry.registerEntityRenderingHandler(MutantWarlord.class, RenderSuperMutant::new);
 		RenderingRegistry.registerEntityRenderingHandler(MilitaryJet.class, RenderMilitaryJet::new);
+
+		RenderingRegistry.registerEntityRenderingHandler(CommanderNPC.class, m -> new RenderTexturedSoldier<CommanderNPC>(m, new ResourceLocation(Techguns.MODID,"textures/entity/commander.png")));
+		RenderingRegistry.registerEntityRenderingHandler(CapturedScientist.class, m -> new RenderTexturedSoldier<CapturedScientist>(m, new ResourceLocation(Techguns.MODID,"textures/entity/scientist.png")));
+		RenderingRegistry.registerEntityRenderingHandler(PrototypeBoss.class, m -> new RenderTexturedMutant(m, new ResourceLocation(Techguns.MODID,"textures/entity/prototype.png")));
 	}
 	
 	
@@ -1166,6 +1174,11 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public EntityPlayer getPlayerClient() {
 		return Minecraft.getMinecraft().player;
+	}
+
+	@Override
+	public void openCampaignGui(int mission, byte state, int progress, boolean atCommander) {
+		Minecraft.getMinecraft().displayGuiScreen(new techguns.client.gui.GuiCampaignDialog(mission, state, progress, atCommander));
 	}
 
 	

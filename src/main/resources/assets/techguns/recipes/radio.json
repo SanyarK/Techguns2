@@ -1,0 +1,26 @@
+{
+  "result": {
+    "item": "techguns:radio"
+  },
+  "pattern": [
+    " t ",
+    "iri",
+    "ici"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "t": {
+      "item": "minecraft:iron_bars"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "c": {
+      "type": "forge:ore_dict",
+      "ore": "plateIron"
+    }
+  }
+}

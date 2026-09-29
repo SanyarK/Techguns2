@@ -14,6 +14,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import techguns.init.ITGInitializer;
 import techguns.packets.GunFiredMessage;
+import techguns.packets.PacketCampaignAction;
+import techguns.packets.PacketCampaignOpenGui;
+import techguns.packets.PacketCampaignSync;
 import techguns.packets.PacketDoorStateChange;
 import techguns.packets.PacketEntityDeathType;
 import techguns.packets.PacketGuiButtonClick;
@@ -94,7 +97,10 @@ public class TGPackets implements ITGInitializer {
 		network.registerMessage(PacketDoorStateChange.Handler.class, PacketDoorStateChange.class, packetid++, Side.CLIENT);
 		network.registerMessage(PacketNotifyAmbientEffectHandler.class, PacketNotifyAmbientEffectChange.class, packetid++, Side.CLIENT);
 		network.registerMessage(PacketGunImpactFX.Handler.class, PacketGunImpactFX.class, packetid++, Side.CLIENT);
-		
+		network.registerMessage(PacketCampaignSync.Handler.class, PacketCampaignSync.class, packetid++, Side.CLIENT);
+		network.registerMessage(PacketCampaignOpenGui.Handler.class, PacketCampaignOpenGui.class, packetid++, Side.CLIENT);
+		network.registerMessage(PacketCampaignAction.Handler.class, PacketCampaignAction.class, packetid++, Side.SERVER);
+
 		
 		/*
 		network.registerMessage(PacketRequestTurretSync.Handler.class, PacketRequestTurretSync.class, packetid++, Side.SERVER);

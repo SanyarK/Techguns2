@@ -18,7 +18,9 @@ import techguns.entities.npcs.AlienBug;
 import techguns.entities.npcs.ArmySoldier;
 import techguns.entities.npcs.AttackHelicopter;
 import techguns.entities.npcs.Bandit;
+import techguns.entities.npcs.CapturedScientist;
 import techguns.entities.npcs.Commando;
+import techguns.entities.npcs.CommanderNPC;
 import techguns.entities.npcs.CyberDemon;
 import techguns.entities.npcs.DictatorDave;
 import techguns.entities.npcs.EliteSoldier;
@@ -31,6 +33,7 @@ import techguns.entities.npcs.MutantWarrior;
 import techguns.entities.npcs.NPCTurret;
 import techguns.entities.npcs.Outcast;
 import techguns.entities.npcs.Paratrooper;
+import techguns.entities.npcs.PrototypeBoss;
 import techguns.entities.npcs.PsychoSteve;
 import techguns.entities.npcs.SkeletonSoldier;
 import techguns.entities.npcs.StormTrooper;
@@ -150,7 +153,12 @@ public class TGEntities implements ITGInitializer {
 		registerModEntityWithEgg(MutantWarrior.class, "MutantWarrior", 0x8a9a3c, 0x5a1010);
 		registerModEntityWithEgg(MutantWarlord.class, "MutantWarlord", 0x6b7a2a, 0x300000);
 		EntityRegistry.registerModEntity(new ResourceLocation(Techguns.MODID,"MilitaryJet"), MilitaryJet.class, Techguns.MODID+".MilitaryJet", ++Techguns.modEntityID, Techguns.instance, 256, 2, true, 0x5a6470, 0x8ec0d7);
-		
+
+		//story campaign NPCs, keep at the end of the list so entity IDs of old worlds stay valid
+		registerModEntityWithEgg(CommanderNPC.class, "CommanderNPC", 0x1e2b16, 0x4a90d9);
+		registerModEntityWithEgg(CapturedScientist.class, "CapturedScientist", 0xf0f0f0, 0x4a90d9);
+		registerModEntityWithEgg(PrototypeBoss.class, "PrototypeBoss", 0x3a5a2a, 0x9b30ff);
+
 	}
 
 
