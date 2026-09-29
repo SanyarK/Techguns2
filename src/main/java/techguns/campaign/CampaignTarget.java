@@ -118,7 +118,7 @@ public enum CampaignTarget {
 		try {
 			return (EntityLiving) clazz.getConstructor(World.class).newInstance(world);
 		} catch (Exception e) {
-			TGLogger.logger_server.error("Campaign could not create " + clazz.getName(), e);
+			TGLogger.logger_server.warning("Campaign could not create " + clazz.getName() + ": " + e);
 			return null;
 		}
 	}
