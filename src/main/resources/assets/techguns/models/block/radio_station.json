@@ -1,0 +1,34 @@
+{
+    "parent": "block/block",
+    "textures": {
+        "particle": "techguns:blocks/radio_station_side",
+        "front": "techguns:blocks/radio_station_front",
+        "side": "techguns:blocks/radio_station_side",
+        "top": "techguns:blocks/radio_station_top"
+    },
+    "elements": [
+        {
+            "from": [ 3, 2, 11 ],
+            "to": [ 13, 14, 16 ],
+            "faces": {
+                "north": { "uv": [ 3, 2, 13, 14 ], "texture": "#front" },
+                "south": { "uv": [ 3, 2, 13, 14 ], "texture": "#side", "cullface": "south" },
+                "east": { "uv": [ 0, 2, 5, 14 ], "texture": "#side" },
+                "west": { "uv": [ 11, 2, 16, 14 ], "texture": "#side" },
+                "up": { "uv": [ 3, 11, 13, 16 ], "texture": "#top" },
+                "down": { "uv": [ 3, 11, 13, 16 ], "texture": "#top" }
+            }
+        },
+        {
+            "from": [ 11, 14, 13 ],
+            "to": [ 12, 22, 14 ],
+            "faces": {
+                "north": { "uv": [ 7, 0, 8, 8 ], "texture": "#top" },
+                "south": { "uv": [ 7, 0, 8, 8 ], "texture": "#top" },
+                "east": { "uv": [ 7, 0, 8, 8 ], "texture": "#top" },
+                "west": { "uv": [ 7, 0, 8, 8 ], "texture": "#top" },
+                "up": { "uv": [ 7, 7, 8, 8 ], "texture": "#top" }
+            }
+        }
+    ]
+}

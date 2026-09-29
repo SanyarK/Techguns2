@@ -24,6 +24,7 @@ import techguns.world.structures.MutantLair;
 import techguns.world.structures.UndergroundMilitaryMine;
 import techguns.world.structures.WorldgenStructure;
 import techguns.world.structures.WorldgenStructure.BiomeColorType;
+import techguns.world.wasteland.WastelandRuins;
 
 /**
  * Operator command that places a military expansion structure around the player or starts an air raid.
@@ -31,7 +32,8 @@ import techguns.world.structures.WorldgenStructure.BiomeColorType;
  */
 public class CommandTGStructure extends CommandBase {
 
-	protected static final String[] OPTIONS = {"underground_mine", "airfield", "bunker", "mutant_lair", "mutagen_lab", "command_post", "airraid"};
+	protected static final String[] OPTIONS = {"underground_mine", "airfield", "bunker", "mutant_lair", "mutagen_lab", "command_post", "airraid",
+		"city_block", "ruined_building", "ruined_house", "burnt_house", "gas_station", "radio_tower", "crater", "road", "car_wreck", "shipwreck"};
 
 	@Override
 	public String getName() {
@@ -40,7 +42,7 @@ public class CommandTGStructure extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/tgstructure <underground_mine|airfield|bunker|mutant_lair|mutagen_lab|command_post|airraid>";
+		return "/tgstructure <underground_mine|airfield|bunker|mutant_lair|mutagen_lab|command_post|airraid|city_block|ruined_building|ruined_house|burnt_house|gas_station|radio_tower|crater|road|car_wreck|shipwreck>";
 	}
 
 	@Override
@@ -64,6 +66,12 @@ public class CommandTGStructure extends CommandBase {
 			} else {
 				sender.sendMessage(new TextComponentString("Could not spawn the jet, try again or increase the render distance."));
 			}
+			return;
+		}
+
+		//wasteland ruins fill the 16x16 area around the player
+		if (WastelandRuins.place(args[0], world, pos, rnd)) {
+			sender.sendMessage(new TextComponentString("Placed " + args[0] + " around " + pos.getX() + " " + pos.getZ() + "."));
 			return;
 		}
 

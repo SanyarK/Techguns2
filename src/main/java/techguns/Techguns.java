@@ -19,10 +19,13 @@ import techguns.items.guns.ammo.AmmoTypes;
 import techguns.plugins.chisel.TGChiselBlocks;
 import techguns.plugins.crafttweaker.TGCraftTweakerIntegration;
 import techguns.server.CommandTGCampaign;
+import techguns.server.CommandTGStartBunker;
 import techguns.server.CommandTGStructure;
 import techguns.world.OreGenerator;
 import techguns.world.WorldGenTGStructureSpawn;
 import techguns.world.dungeon.DungeonTemplate;
+import techguns.world.wasteland.TGBiomes;
+import techguns.world.wasteland.WastelandWorldGenerator;
 
 @Mod(modid = Techguns.MODID, version = Techguns.VERSION, name=Techguns.NAME, acceptedMinecraftVersions=Techguns.MCVERSION, guiFactory=Techguns.GUI_FACTORY, updateJSON=Techguns.UPDATEURL, dependencies=Techguns.DEPENDENCIES)
 public class Techguns
@@ -118,6 +121,7 @@ public class Techguns
     public void preinit(FMLPreInitializationEvent event)
     {
     	TGConfig.init(event);
+    	TGBiomes.createWorldType();
     	for (ITGInitializer init : initializers){
     		init.preInit(event);
     	}
@@ -130,6 +134,8 @@ public class Techguns
     	if(TGConfig.doOreGenTitanium||TGConfig.doOreGenUranium||TGConfig.doOreGenLead||TGConfig.doOreGenTin||TGConfig.doOreGenCopper) {
     		GameRegistry.registerWorldGenerator(new OreGenerator(), 1);
     	}
+    	
+    	GameRegistry.registerWorldGenerator(new WastelandWorldGenerator(), 5);
     	
     	 if(TGConfig.doWorldspawn){
          	GameRegistry.registerWorldGenerator(new WorldGenTGStructureSpawn(), 6);
@@ -155,6 +161,7 @@ public class Techguns
     {
     	event.registerServerCommand(new CommandTGStructure());
     	event.registerServerCommand(new CommandTGCampaign());
+    	event.registerServerCommand(new CommandTGStartBunker());
     }
     
     

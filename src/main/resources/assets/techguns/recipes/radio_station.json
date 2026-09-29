@@ -1,0 +1,22 @@
+{
+  "result": {
+    "item": "techguns:radio_station"
+  },
+  "pattern": [
+    " t ",
+    "iri",
+    "iii"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "t": {
+      "item": "minecraft:iron_bars"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "r": {
+      "item": "techguns:radio"
+    }
+  }
+}

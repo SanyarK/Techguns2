@@ -81,6 +81,18 @@ public class TGConfig {
 	public static boolean campaignGiveRadio;
 	public static int campaignMinDistance;
 	public static int campaignMaxDistance;
+
+	//apocalypse world type, wasteland biomes, ruins and the start bunker
+	public static boolean apocalypseWorldType;
+	public static int apocalypseBiomeSize;
+	public static boolean wastelandBiomesInNormalWorlds;
+	public static int wastelandBiomeWeight;
+	public static boolean wastelandRuins;
+	public static int wastelandRuinRarity;
+	public static boolean wastelandRuinSpawners;
+	public static boolean startBunker;
+	public static boolean startBunkerNormalWorlds;
+	public static boolean cl_wastelandFog;
 	
 	public static int spawnWeightTGOverworld;
 	public static int spawnWeightTGNether;
@@ -164,6 +176,7 @@ public class TGConfig {
 	private static final String WORLDGEN="World Generation";
 	private static final String DAMAGE_FACTORS="Damage Factors";
 	private static final String ORE_DRILLS = "Ore Drills";
+	private static final String APOCALYPSE = "Apocalypse";
 	
 
 	public static void init(FMLPreInitializationEvent event){
@@ -246,6 +259,24 @@ public class TGConfig {
 		campaignMinDistance = config.getInt("CampaignMinDistance", "Campaign", 300, 50, 100000, "Minimum distance from the player at which campaign mission objectives are placed");
 
 		campaignMaxDistance = config.getInt("CampaignMaxDistance", "Campaign", 600, 100, 100000, "Maximum distance from the player at which campaign mission objectives are placed");
+
+		apocalypseWorldType = config.getBoolean("ApocalypseWorldType", APOCALYPSE, true, "Add the 'Apocalypse' world type: only wasteland biomes, ruined cities and a start bunker. Worlds created with it load as default worlds when this is disabled.");
+
+		apocalypseBiomeSize = config.getInt("ApocalypseBiomeSize", APOCALYPSE, 5, 2, 8, "Biome size of the Apocalypse world type, vanilla default worlds use 4, large biomes 6. Only affects newly generated chunks.");
+
+		wastelandBiomesInNormalWorlds = config.getBoolean("WastelandBiomesInNormalWorlds", APOCALYPSE, false, "Also generate the wasteland biomes (except the dried sea) in normal worlds. Only affects newly generated chunks.");
+
+		wastelandBiomeWeight = config.getInt("WastelandBiomeWeight", APOCALYPSE, 4, 1, 100, "Spawn weight of every wasteland biome in normal worlds (vanilla biomes use about 10)");
+
+		wastelandRuins = config.getBoolean("WastelandRuins", APOCALYPSE, true, "Generate city ruins, ruined houses, roads, gas stations, radio towers, bomb craters and ship wrecks in the wasteland biomes");
+
+		wastelandRuinRarity = config.getInt("WastelandRuinRarity", APOCALYPSE, 16, 1, 10000, "Outside of cities a ruin is placed in 1 of X chunks of the wasteland biomes");
+
+		wastelandRuinSpawners = config.getBoolean("WastelandRuinSpawners", APOCALYPSE, true, "Ruins can contain monster spawners (zombies, bandits, mutants)");
+
+		startBunker = config.getBoolean("StartBunker", APOCALYPSE, true, "Build a small shelter under the world spawn when an Apocalypse world is created, players start inside it");
+
+		startBunkerNormalWorlds = config.getBoolean("StartBunkerNormalWorlds", APOCALYPSE, false, "Also build the start bunker when a world of another type is created (sets the gamerule spawnRadius to 0). Existing worlds are never changed, use /tgstartbunker there.");
 		
 		
 		damagePvP = config.getFloat("DamagePvP", DAMAGE_FACTORS, 0.5f, 0.0f, 100.0f, "Damage factor Techguns weapons deal when fired from players against other players, is zero when PvP is disabled");
@@ -297,6 +328,8 @@ public class TGConfig {
 		cl_fixedSprintFov = config.getFloat("FixedSprintFovMultiplier", CLIENTSIDE, 1.15f, 1.0f, 10.0f, "Multiply the FOV while sprinting by this value independent from the actual speed, has no effect when LockSpeedDependantFov is false, pure clientside check.");
 		
 		cl_sortPassesPerTick = config.getInt("ParticleDepthSortPasses", CLIENTSIDE, 10, 0, 20, "How many bubble sort passes should be performed each tick on particles. 0=off. Clientside");
+		
+		cl_wastelandFog = config.getBoolean("WastelandFog", CLIENTSIDE, true, "Dust fog (green in the radioactive zone) and a dull sky in the wasteland biomes, pure clientside check.");
 		
 		
 		WIP_disableRadiationSystem = config.getBoolean("WIP_disableRadiationSystem", config.CATEGORY_GENERAL, true, "Disable Radiation for players. Radiation system is WIP, only use in creative for testing");
