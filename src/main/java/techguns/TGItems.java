@@ -24,6 +24,7 @@ import techguns.items.GenericItem;
 import techguns.items.ItemGPSNavigator;
 import techguns.items.ItemMilitaryContract;
 import techguns.items.ItemQuestItem;
+import techguns.items.ItemBandage;
 import techguns.items.ItemRadio;
 import techguns.items.GenericItemShared;
 import techguns.items.GenericItemShared.SharedItemEntry;
@@ -289,6 +290,9 @@ public class TGItems implements ITGInitializer{
 	public static ItemGPSNavigator GPS_NAVIGATOR;
 	public static ItemQuestItem INTEL_DOCUMENTS;
 	public static ItemQuestItem MUTAGEN_SAMPLE;
+
+	//apocalypse start kit
+	public static ItemBandage BANDAGE;
 	
 	//DrillHeads
 	public static ItemStack OREDRILLHEAD_STEEL;
@@ -545,6 +549,8 @@ public class TGItems implements ITGInitializer{
 		GPS_NAVIGATOR = new ItemGPSNavigator("gps_navigator");
 		INTEL_DOCUMENTS = new ItemQuestItem("intel_documents", Techguns.MODID + ".campaign.item.intel.tooltip", true);
 		MUTAGEN_SAMPLE = new ItemQuestItem("mutagen_sample", Techguns.MODID + ".campaign.item.sample.tooltip", true);
+
+		BANDAGE = new ItemBandage("bandage");
 
 		/**
 		 * Additional Slot items

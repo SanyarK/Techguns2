@@ -38,6 +38,23 @@ A 10 mission story campaign on top of the military expansion (config category `C
 * **Progress** is stored per player (capability, synced to the client), all texts are in English and Russian.
 * **Testing**: `/tgcampaign set <1-10>` jumps to a mission (accept it via the radio), `/tgcampaign reset` restarts the campaign, `/tgcampaign info` prints the state, `/tgstructure mutagen_lab` and `/tgstructure command_post` place the new structures.
 
+## Apocalypse world (Мир постапокалипсиса)
+
+A post-apocalyptic world type with endless wastelands and a start bunker (config category `Apocalypse`, every part can be switched off):
+
+* **World type "Apocalypse"** - choose it in *More World Options → World Type* (dedicated servers: `level-type=tg_apocalypse`). Its own biome provider generates only wasteland biomes in big regions (`ApocalypseBiomeSize`, default 5 = twice the vanilla size), no oceans, rivers, villages or temples. The sea level is lowered to 50 so the dried sea stays dry, water lakes are rare. `WastelandBiomesInNormalWorlds` adds the biomes (except the dried sea) to normal worlds.
+* **Biomes** (BiomeDictionary WASTELAND/DEAD/DRY, so Techguns NPCs spawn with danger level 2), grey-brown grass and foliage, a dull sky, dust fog (client option `WastelandFog`), almost no animals but husks:
+  * **Wasteland** - flat cracked ground of coarse dirt, sand, gravel and terracotta, dry grass, dead bushes and rare dead trees.
+  * **Scorched Hills** - burnt hills of stone, black terracotta and gravel with charred trees.
+  * **Dead Forest** - leafless dead trees.
+  * **Radioactive Zone** - green terracotta, uranium ore at the surface and a greenish fog.
+  * **Dried Sea** - a salt flat basin with ship wrecks and bones.
+  * **City Ruins** - every chunk (the +8 shifted decoration area) is one city block with roads along its borders: ruined high rises (collapsed corners and floors, broken windows, rebar, rubble, a ladder to the upper floors), burnt houses, collapsed buildings, parking lots, bomb craters, dead parks, abandoned cars and street lamps, loot chests and rare spawners with zombies, bandits or mutants.
+* **Ruins in the other wastelands** (`WastelandRuinRarity`): single ruined houses, broken highways, gas stations, radio towers with a working radio, bomb craters, car wrecks and ship wrecks. Everything is generated inside the chunk area shifted by +8 like vanilla decorators, so no cascading worldgen. The existing Techguns structures (bases, bunkers, airfield, mine, mutant lair) spawn in the wastelands as well.
+* **Start bunker** - when an Apocalypse world is created a small shelter is built under the spawn and the world spawn is moved inside (stored in the world data, built only once): bed, chest with a start kit (food, bandages, pistol, magazines, torches, a water bucket), workbench, furnace, a **Radio Station** on the wall (right click opens the commander dialog of the story campaign) and a ladder up to a hatch. `StartBunkerNormalWorlds` builds it in new worlds of other types too.
+* **New items**: Radio Station block (crafted from the radio item and iron) and Bandage (paper and string, heals 2 hearts).
+* **Testing**: `/tgstartbunker [nospawn]` builds the bunker under the player, moves the world spawn inside and teleports the player in; `/tgstructure <city_block|ruined_building|ruined_house|burnt_house|gas_station|radio_tower|crater|road|car_wreck|shipwreck>` places a ruin in the 16x16 area around the player.
+
 ## Building
 
 Minecraft 1.12.2 / ForgeGradle 2.3 needs **Java 8** and **Gradle 4.10.3**: `gradle build`, the mod jar is in `build/libs`. The GitHub Actions workflow in `.github/workflows/build.yml` builds the jar on every push and uploads it as the `techguns-mod-jar` artifact.
