@@ -31,6 +31,9 @@ jobs:
 
       - name: Prepare the server
         run: |
+          # the JEI runtime jar needs a newer forge than the dev environment, the server does not need it
+          sed -i '/^\s*runtime "mezz\.jei/d' build.gradle
+          grep -n "jei" build.gradle || true
           mkdir -p run/config
           echo "eula=true" > run/eula.txt
           printf 'level-type=tg_apocalypse\nlevel-seed=20260929\nonline-mode=false\nspawn-protection=0\nmax-tick-time=-1\n' > run/server.properties
