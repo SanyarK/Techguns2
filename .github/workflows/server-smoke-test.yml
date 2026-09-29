@@ -42,18 +42,21 @@ jobs:
           (sleep 5
            for s in city_block ruined_building ruined_house burnt_house gas_station radio_tower crater road car_wreck shipwreck; do echo "tgstructure $s"; done
            echo "tgstartbunker nospawn"
-           echo "stop") | timeout 600 $HOME/gradle-4.10.3/bin/gradle runServer --no-daemon > server.log 2>&1 || true
+           echo "stop") | timeout 900 $HOME/gradle-4.10.3/bin/gradle runServer -x getAssets --no-daemon > server.log 2>&1 || true
           echo "exit done"
 
       - name: Check the logs
         run: |
-          grep -n -E "Built the start bunker|Done \(|Placed |Stopping|tg_apocalypse" server.log | head -40 || true
-          echo "---- problems ----"
-          grep -n -i -E "exception|cascading|already decorating|error" server.log run/logs/latest.log | grep -v -i -E "mixin|realms|OpenComputers|oc:|JEI|jei|albedo|ftblib|crafttweaker|DEP00|Error loading" | head -80 || true
-          echo "---- tail ----"
-          tail -60 server.log
-          if grep -q -i "cascading worldgen" run/logs/latest.log server.log; then grep -i -B2 -A2 "cascading worldgen" run/logs/latest.log | head -40; fi
-          grep -q "Done (" server.log
+          ls -la run run/logs || true
+          echo "==== server.log (techguns) ===="
+          grep -n -i -E "bunker|techguns.*(exception|error)|cascading" server.log | head -40 || true
+          echo "==== latest.log (filtered) ===="
+          grep -n -i -E "techguns|apocalypse|bunker|exception|cascading|Done \(|Preparing|Stopping|crash|Caused by|\sat techguns|\[Server thread/(WARN|ERROR)\]" run/logs/latest.log | head -300 || true
+          echo "==== crash reports ===="
+          cat run/crash-reports/* 2>/dev/null | head -200 || true
+          echo "==== latest.log tail ===="
+          tail -150 run/logs/latest.log || true
+          grep -q "Done (" run/logs/latest.log
 
       - name: Upload logs
         if: always()

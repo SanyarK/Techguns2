@@ -16,7 +16,6 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.feature.WorldGenAbstractTree;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import techguns.TGConfig;
 
 /**
  * All wasteland biomes of the apocalypse world share this class, the kind decides the surface,
@@ -179,15 +178,6 @@ public class BiomeWasteland extends Biome {
 	@Override
 	public WorldGenAbstractTree getRandomTreeFeature(Random rand) {
 		return this.deadTree;
-	}
-
-	@Override
-	public void decorate(World world, Random rand, BlockPos pos) {
-		super.decorate(world, rand, pos);
-		//like the vanilla decorators everything stays inside the chunk area shifted by +8
-		if (TGConfig.wastelandRuins) {
-			WastelandRuins.decorate(world, rand, pos.getX() + 8, pos.getZ() + 8, this);
-		}
 	}
 
 	@Override

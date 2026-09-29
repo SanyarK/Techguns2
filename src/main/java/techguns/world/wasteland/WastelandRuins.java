@@ -5,6 +5,7 @@ import java.util.Random;
 import net.minecraft.block.BlockButton;
 import net.minecraft.block.BlockCarpet;
 import net.minecraft.block.BlockDirt;
+import net.minecraft.block.BlockLog;
 import net.minecraft.block.BlockNewLog;
 import net.minecraft.block.BlockOldLog;
 import net.minecraft.block.BlockPlanks;
@@ -18,6 +19,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import techguns.TGBlocks;
 import techguns.TGConfig;
 import techguns.Techguns;
@@ -136,13 +138,38 @@ public class WastelandRuins {
 	 * ------------------------------------------------- worldgen entry
 	 */
 
-	public static void decorate(World world, Random rand, int x0, int z0, BiomeWasteland biome) {
-		RuinBuilder b = new RuinBuilder(world, rand);
-		if (biome.kind == Kind.CITY_RUINS) {
-			cityBlock(b, x0, z0);
-			return;
+	/**
+	 * Called for every populated overworld chunk. Only the area shifted by +8 is changed, like vanilla decorators do:
+	 * the city blocks are aligned to chunks, the four of them that overlap the area are built clipped to it,
+	 * so every city block is finished by four calls. Everything else stays inside the area.
+	 */
+	public static void generate(World world, Random rand, int chunkX, int chunkZ) {
+		int x0 = chunkX * 16 + 8;
+		int z0 = chunkZ * 16 + 8;
+		boolean city = false;
+		for (int qx = chunkX; qx <= chunkX + 1; qx++) {
+			for (int qz = chunkZ; qz <= chunkZ + 1; qz++) {
+				if (world.getBiome(new BlockPos(qx * 16 + 8, 64, qz * 16 + 8)) == TGBiomes.CITY_RUINS) {
+					city = true;
+					//own seed per city block, so all four parts agree
+					long seed = world.getSeed() ^ (qx * 341873128712L + qz * 132897987541L) ^ 0x5DEECE66DL;
+					RuinBuilder b = new RuinBuilder(world, new Random(seed)).clip(x0, z0, x0 + 15, z0 + 15);
+					cityBlock(b, qx * 16, qz * 16, b.ground(qx * 16, qz * 16));
+				}
+			}
 		}
+		//other ruins stay away from city blocks, they must not change the parts built later
+		Biome biome = world.getBiome(new BlockPos(x0 + 8, 64, z0 + 8));
+		if (!city && biome instanceof BiomeWasteland) {
+			wastelandRuins(new RuinBuilder(world, rand), x0, z0, (BiomeWasteland) biome);
+		}
+	}
 
+	/**
+	 * rare ruins, roads and debris of the open wastelands inside the 16x16 area x0/z0
+	 */
+	protected static void wastelandRuins(RuinBuilder b, int x0, int z0, BiomeWasteland biome) {
+		Random rand = b.rnd;
 		highways(b, x0, z0);
 
 		if (rand.nextInt(Math.max(1, TGConfig.wastelandRuinRarity)) == 0) {
@@ -152,7 +179,7 @@ public class WastelandRuins {
 			} else if (roll < (biome.kind == Kind.RADIOACTIVE_ZONE ? 50 : 30)) {
 				crater(b, x0 + 5 + rand.nextInt(6), z0 + 5 + rand.nextInt(6), 3 + rand.nextInt(3), 2 + rand.nextInt(3), biome.kind == Kind.RADIOACTIVE_ZONE);
 			} else if (roll < 55) {
-				ruinedHouse(b, x0 + 3, z0 + 3, 10, 10, rand.nextBoolean());
+				ruinedHouse(b, x0 + 3, z0 + 3, 10, 10, rand.nextBoolean(), -1);
 			} else if (roll < 68) {
 				carWrecks(b, x0, z0);
 			} else if (roll < 78) {
@@ -164,7 +191,7 @@ public class WastelandRuins {
 					radioTower(b, x0, z0);
 				}
 			} else {
-				ruinedBuilding(b, x0 + 3, z0 + 3, 10, 10, 2, 4);
+				ruinedBuilding(b, x0 + 3, z0 + 3, 10, 10, 2, 4, -1);
 			}
 		} else if (rand.nextInt(5) == 0) {
 			debris(b, x0, z0);
@@ -184,16 +211,18 @@ public class WastelandRuins {
 		int z0 = pos.getZ() - 8;
 		switch (name) {
 		case "city_block":
-			cityBlock(b, x0, z0);
+			int cx = pos.getX() & ~15;
+			int cz = pos.getZ() & ~15;
+			cityBlock(b, cx, cz, b.ground(cx, cz));
 			break;
 		case "ruined_building":
-			ruinedBuilding(b, x0 + 3, z0 + 3, 10, 10, 3, 8);
+			ruinedBuilding(b, x0 + 3, z0 + 3, 10, 10, 3, 8, -1);
 			break;
 		case "ruined_house":
-			ruinedHouse(b, x0 + 3, z0 + 3, 10, 10, false);
+			ruinedHouse(b, x0 + 3, z0 + 3, 10, 10, false, -1);
 			break;
 		case "burnt_house":
-			ruinedHouse(b, x0 + 3, z0 + 3, 10, 10, true);
+			ruinedHouse(b, x0 + 3, z0 + 3, 10, 10, true, -1);
 			break;
 		case "gas_station":
 			gasStation(b, x0, z0);
@@ -208,7 +237,7 @@ public class WastelandRuins {
 			road(b, x0, z0, true);
 			break;
 		case "car_wreck":
-			car(b, x0 + 6, z0 + 7, EnumFacing.EAST, rnd.nextBoolean());
+			car(b, x0 + 6, z0 + 7, EnumFacing.EAST, rnd.nextBoolean(), -1);
 			break;
 		case "shipwreck":
 			shipwreck(b, x0, z0);
@@ -339,9 +368,9 @@ public class WastelandRuins {
 		}
 		if (r.nextInt(12) == 0) {
 			if (alongX) {
-				car(b, x0 + 2 + r.nextInt(8), z0 + 5, EnumFacing.EAST, r.nextBoolean());
+				car(b, x0 + 2 + r.nextInt(8), z0 + 5, EnumFacing.EAST, r.nextBoolean(), -1);
 			} else {
-				car(b, x0 + 9, z0 + 2 + r.nextInt(8), EnumFacing.SOUTH, r.nextBoolean());
+				car(b, x0 + 9, z0 + 2 + r.nextInt(8), EnumFacing.SOUTH, r.nextBoolean(), -1);
 			}
 		}
 	}
@@ -349,13 +378,11 @@ public class WastelandRuins {
 	/**
 	 * iron bar pole with an arm towards the road, some of them still have a lamp, some fell over
 	 */
-	protected static void streetLamp(RuinBuilder b, int x, int y, int z, EnumFacing arm) {
+	protected static void streetLamp(RuinBuilder b, int x, int y, int z, EnumFacing arm, EnumFacing fall) {
 		Random r = b.rnd;
 		if (r.nextInt(6) == 0) {
 			for (int i = 0; i < 4; i++) {
-				int px = x + arm.getFrontOffsetX() * i;
-				int pz = z + arm.getFrontOffsetZ() * i;
-				b.set(px, b.ground(px, pz) + 1, pz, RuinBuilder.IRON_BARS);
+				b.set(x + fall.getFrontOffsetX() * i, y, z + fall.getFrontOffsetZ() * i, RuinBuilder.IRON_BARS);
 			}
 			return;
 		}
@@ -373,22 +400,25 @@ public class WastelandRuins {
 	/**
 	 * abandoned car, 4 blocks long in direction dir and 2 wide to the right of it
 	 */
-	public static void car(RuinBuilder b, int sx, int sz, EnumFacing dir, boolean burnt) {
+	public static void car(RuinBuilder b, int sx, int sz, EnumFacing dir, boolean burnt, int fixedY) {
 		Random r = b.rnd;
 		EnumFacing side = dir.rotateY();
-		int max = 0;
-		int min = 255;
-		for (int i = 0; i < 4; i++) {
-			for (int k = 0; k < 2; k++) {
-				int g = b.ground(sx + dir.getFrontOffsetX() * i + side.getFrontOffsetX() * k, sz + dir.getFrontOffsetZ() * i + side.getFrontOffsetZ() * k);
-				max = Math.max(max, g);
-				min = Math.min(min, g);
+		int y = fixedY;
+		if (y < 0) {
+			int max = 0;
+			int min = 255;
+			for (int i = 0; i < 4; i++) {
+				for (int k = 0; k < 2; k++) {
+					int g = b.ground(sx + dir.getFrontOffsetX() * i + side.getFrontOffsetX() * k, sz + dir.getFrontOffsetZ() * i + side.getFrontOffsetZ() * k);
+					max = Math.max(max, g);
+					min = Math.min(min, g);
+				}
 			}
+			if (max - min > 2) {
+				return;
+			}
+			y = max + 1;
 		}
-		if (max - min > 2) {
-			return;
-		}
-		int y = max + 1;
 		IBlockState body = burnt ? RuinBuilder.terracotta(r.nextBoolean() ? EnumDyeColor.BLACK : EnumDyeColor.GRAY) : RuinBuilder.terracotta(CAR_COLORS[r.nextInt(CAR_COLORS.length)]);
 		IBlockState wheel = ASPHALT;
 		boolean trunkChest = !burnt && r.nextInt(8) == 0;
@@ -420,7 +450,7 @@ public class WastelandRuins {
 		int n = 1 + r.nextInt(2);
 		for (int c = 0; c < n; c++) {
 			EnumFacing dir = randomFacing(r);
-			car(b, x0 + 5 + r.nextInt(6), z0 + 5 + r.nextInt(6), dir, r.nextInt(3) == 0);
+			car(b, x0 + 5 + r.nextInt(6), z0 + 5 + r.nextInt(6), dir, r.nextInt(3) == 0, -1);
 		}
 		if (r.nextBoolean()) {
 			b.rubblePile(x0 + 3 + r.nextInt(10), z0 + 3 + r.nextInt(10), 1, 1, x0, z0, x0 + 15, z0 + 15);
@@ -432,60 +462,59 @@ public class WastelandRuins {
 	 */
 
 	/**
-	 * One block of a ruined city: roads along the cell borders, a sidewalk and a lot in the middle
+	 * One block of a ruined city on a whole chunk (x0/z0 is the chunk corner): roads along the chunk borders,
+	 * a sidewalk and a lot in the middle. The block is leveled to the height "base", heights are never read
+	 * from the world for the layout, so building it in four clipped parts gives the same result.
 	 */
-	public static void cityBlock(RuinBuilder b, int x0, int z0) {
+	public static void cityBlock(RuinBuilder b, int x0, int z0, int base) {
 		Random r = b.rnd;
-		int[][] g = new int[16][16];
-		for (int i = 0; i < 16; i++) {
-			for (int j = 0; j < 16; j++) {
-				g[i][j] = b.ground(x0 + i, z0 + j);
-			}
-		}
 		for (int i = 0; i < 16; i++) {
 			for (int j = 0; j < 16; j++) {
 				int x = x0 + i;
 				int z = z0 + j;
-				int y = g[i][j];
 				boolean road = i < 2 || i > 13 || j < 2 || j > 13;
 				boolean walk = !road && (i == 2 || i == 13 || j == 2 || j == 13);
+				IBlockState s;
 				if (road) {
-					IBlockState s = asphalt(r);
-					//the center line of a road lies on the cell border, every border gets it once
+					s = asphalt(r);
+					//the center line of a road lies on the chunk border, every border gets it once
 					boolean line = (j == 0 && i >= 2 && i <= 13 && Math.floorMod(x, 4) < 2) || (i == 0 && j >= 2 && j <= 13 && Math.floorMod(z, 4) < 2);
 					if (line && r.nextInt(5) != 0) {
 						s = ROAD_LINE;
 					}
-					b.set(x, y, z, s);
-					b.clearAbove(x, y + 1, z, 3);
 				} else if (walk) {
-					b.set(x, y, z, r.nextInt(8) == 0 ? RuinBuilder.CRACKED_BRICKS : SIDEWALK);
-					b.clearAbove(x, y + 1, z, 2);
+					s = r.nextInt(8) == 0 ? RuinBuilder.CRACKED_BRICKS : SIDEWALK;
+				} else {
+					int k = r.nextInt(10);
+					s = k < 6 ? RuinBuilder.COARSE_DIRT : k < 8 ? RuinBuilder.GRAVEL : RuinBuilder.COBBLESTONE;
 				}
+				b.foundation(x, z, base - 1, RuinBuilder.COARSE_DIRT);
+				b.set(x, base, z, s);
+				b.clearAbove(x, base + 1, z, 6);
 			}
 		}
 
 		int[][] corners = { { 2, 2 }, { 13, 2 }, { 2, 13 }, { 13, 13 } };
 		for (int[] c : corners) {
 			if (r.nextInt(100) < 45) {
-				streetLamp(b, x0 + c[0], g[c[0]][c[1]] + 1, z0 + c[1], c[0] < 8 ? EnumFacing.WEST : EnumFacing.EAST);
+				streetLamp(b, x0 + c[0], base + 1, z0 + c[1], c[0] < 8 ? EnumFacing.WEST : EnumFacing.EAST, c[1] < 8 ? EnumFacing.SOUTH : EnumFacing.NORTH);
 			}
 		}
 
 		int lot = r.nextInt(100);
 		if (lot < 45) {
-			ruinedBuilding(b, x0 + 3, z0 + 3, 10, 10, 3, 8);
+			ruinedBuilding(b, x0 + 3, z0 + 3, 10, 10, 3, 8, base);
 		} else if (lot < 60) {
-			ruinedHouse(b, x0 + 3, z0 + 3, 10, 10, r.nextInt(10) < 7);
+			ruinedHouse(b, x0 + 3, z0 + 3, 10, 10, r.nextInt(10) < 7, base);
 		} else if (lot < 70) {
 			collapsedLot(b, x0 + 3, z0 + 3, 10, 10);
 		} else if (lot < 80) {
-			parkingLot(b, x0 + 3, z0 + 3);
+			parkingLot(b, x0 + 3, z0 + 3, base);
 		} else if (lot < 90) {
 			crater(b, x0 + 8, z0 + 8, 3 + r.nextInt(2), 2 + r.nextInt(2), false);
 			b.rubblePile(x0 + 4 + r.nextInt(8), z0 + 4 + r.nextInt(8), 1, 2, x0 + 3, z0 + 3, x0 + 12, z0 + 12);
 		} else {
-			park(b, x0 + 3, z0 + 3);
+			park(b, x0 + 3, z0 + 3, base);
 		}
 
 		//abandoned cars on the roads
@@ -495,18 +524,19 @@ public class WastelandRuins {
 				int a = 2 + r.nextInt(9);
 				boolean forward = r.nextBoolean();
 				boolean burnt = r.nextInt(3) == 0;
+				int y = base + 1;
 				switch (r.nextInt(4)) {
 				case 0:
-					if (forward) car(b, x0 + a, z0, EnumFacing.EAST, burnt); else car(b, x0 + a + 3, z0 + 1, EnumFacing.WEST, burnt);
+					if (forward) car(b, x0 + a, z0, EnumFacing.EAST, burnt, y); else car(b, x0 + a + 3, z0 + 1, EnumFacing.WEST, burnt, y);
 					break;
 				case 1:
-					if (forward) car(b, x0 + a, z0 + 14, EnumFacing.EAST, burnt); else car(b, x0 + a + 3, z0 + 15, EnumFacing.WEST, burnt);
+					if (forward) car(b, x0 + a, z0 + 14, EnumFacing.EAST, burnt, y); else car(b, x0 + a + 3, z0 + 15, EnumFacing.WEST, burnt, y);
 					break;
 				case 2:
-					if (forward) car(b, x0 + 1, z0 + a, EnumFacing.SOUTH, burnt); else car(b, x0, z0 + a + 3, EnumFacing.NORTH, burnt);
+					if (forward) car(b, x0 + 1, z0 + a, EnumFacing.SOUTH, burnt, y); else car(b, x0, z0 + a + 3, EnumFacing.NORTH, burnt, y);
 					break;
 				default:
-					if (forward) car(b, x0 + 15, z0 + a, EnumFacing.SOUTH, burnt); else car(b, x0 + 14, z0 + a + 3, EnumFacing.NORTH, burnt);
+					if (forward) car(b, x0 + 15, z0 + a, EnumFacing.SOUTH, burnt, y); else car(b, x0 + 14, z0 + a + 3, EnumFacing.NORTH, burnt, y);
 					break;
 				}
 			}
@@ -520,13 +550,17 @@ public class WastelandRuins {
 				b.rubblePile(x0 + j, z0 + i, 1, 2, x0, z0, x0 + 15, z0 + 15);
 			}
 		}
+
+		//the corner column keeps exactly the base height, it is read to find the base of the other parts
+		b.set(x0, base, z0, ASPHALT);
+		b.clearAbove(x0, base + 1, z0, 6);
 	}
 
 	/**
 	 * Ruined high rise: concrete floors, broken windows, a collapsed corner, holes in the floors,
 	 * a jagged top with rebar sticking out and rubble around it
 	 */
-	public static void ruinedBuilding(RuinBuilder b, int lx, int lz, int lotW, int lotD, int minFloors, int maxFloors) {
+	public static void ruinedBuilding(RuinBuilder b, int lx, int lz, int lotW, int lotD, int minFloors, int maxFloors, int fixedBase) {
 		Random r = b.rnd;
 		int sx = Math.max(5, lotW - r.nextInt(3));
 		int sz = Math.max(5, lotD - r.nextInt(3));
@@ -534,7 +568,7 @@ public class WastelandRuins {
 		int bz = lz + r.nextInt(lotD - sz + 1);
 		int floors = minFloors + r.nextInt(maxFloors - minFloors + 1);
 		int h = floors * 4 + 1;
-		int by = b.averageGround(bx, bz, bx + sx - 1, bz + sz - 1);
+		int by = fixedBase >= 0 ? fixedBase : b.averageGround(bx, bz, bx + sx - 1, bz + sz - 1);
 
 		IBlockState wall = BUILDING_WALLS[r.nextInt(BUILDING_WALLS.length)];
 		IBlockState slab = SLAB_CONCRETE;
@@ -752,7 +786,7 @@ public class WastelandRuins {
 	/**
 	 * Small house without roof, burnt houses are black with ash on the floor, old ones mossy with cobwebs
 	 */
-	public static void ruinedHouse(RuinBuilder b, int lx, int lz, int lotW, int lotD, boolean burnt) {
+	public static void ruinedHouse(RuinBuilder b, int lx, int lz, int lotW, int lotD, boolean burnt, int fixedBase) {
 		Random r = b.rnd;
 		int sx = Math.min(lotW, 6 + r.nextInt(3));
 		int sz = Math.min(lotD, 6 + r.nextInt(3));
@@ -760,7 +794,7 @@ public class WastelandRuins {
 		int bz = lz + r.nextInt(lotD - sz + 1);
 		int floors = r.nextInt(3) == 0 ? 2 : 1;
 		int h = floors * 4 + 1;
-		int by = b.averageGround(bx, bz, bx + sx - 1, bz + sz - 1);
+		int by = fixedBase >= 0 ? fixedBase : b.averageGround(bx, bz, bx + sx - 1, bz + sz - 1);
 
 		IBlockState[] walls = burnt
 			? new IBlockState[] { Blocks.BRICK_BLOCK.getDefaultState(), RuinBuilder.terracotta(EnumDyeColor.BLACK), RuinBuilder.COBBLESTONE,
@@ -892,9 +926,8 @@ public class WastelandRuins {
 		}
 	}
 
-	protected static void parkingLot(RuinBuilder b, int lx, int lz) {
+	protected static void parkingLot(RuinBuilder b, int lx, int lz, int y) {
 		Random r = b.rnd;
-		int y = b.averageGround(lx, lz, lx + 9, lz + 9);
 		for (int x = lx; x < lx + 10; x++) {
 			for (int z = lz; z < lz + 10; z++) {
 				b.foundation(x, z, y - 1, RuinBuilder.COARSE_DIRT);
@@ -910,9 +943,9 @@ public class WastelandRuins {
 		for (int c = 0; c < cars; c++) {
 			int bay = r.nextInt(3);
 			if (r.nextBoolean()) {
-				car(b, lx + 3 * bay + 2, lz, EnumFacing.SOUTH, r.nextInt(4) == 0);
+				car(b, lx + 3 * bay + 2, lz, EnumFacing.SOUTH, r.nextInt(4) == 0, y + 1);
 			} else {
-				car(b, lx + 3 * bay + 1, lz + 9, EnumFacing.NORTH, r.nextInt(4) == 0);
+				car(b, lx + 3 * bay + 1, lz + 9, EnumFacing.NORTH, r.nextInt(4) == 0, y + 1);
 			}
 		}
 	}
@@ -920,28 +953,22 @@ public class WastelandRuins {
 	/**
 	 * dead park with a bench, sometimes survivors had a small camp here
 	 */
-	protected static void park(RuinBuilder b, int lx, int lz) {
+	protected static void park(RuinBuilder b, int lx, int lz, int y) {
 		Random r = b.rnd;
 		for (int x = lx; x < lx + 10; x++) {
 			for (int z = lz; z < lz + 10; z++) {
-				int gy = b.ground(x, z);
 				int i = r.nextInt(10);
-				b.set(x, gy, z, i < 4 ? Blocks.GRASS.getDefaultState() : i < 8 ? RuinBuilder.COARSE_DIRT : Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.PODZOL));
+				b.set(x, y, z, i < 4 ? Blocks.GRASS.getDefaultState() : i < 8 ? RuinBuilder.COARSE_DIRT : Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.PODZOL));
 			}
 		}
-		WorldGenDeadTree tree = new WorldGenDeadTree(false, false, true);
 		int trees = 1 + r.nextInt(3);
 		for (int t = 0; t < trees; t++) {
-			int x = lx + 1 + r.nextInt(8);
-			int z = lz + 1 + r.nextInt(8);
-			tree.generate(b.world, r, new BlockPos(x, b.ground(x, z) + 1, z));
+			deadTree(b, lx + 2 + r.nextInt(6), y + 1, lz + 2 + r.nextInt(5));
 		}
-		int bx = lx + 2 + r.nextInt(5);
-		int bz = lz + 8;
-		int gy = b.ground(bx, bz);
 		IBlockState bench = Blocks.OAK_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, EnumFacing.NORTH);
-		b.set(bx, gy + 1, bz, bench);
-		b.set(bx + 1, gy + 1, bz, bench);
+		int bx = lx + 2 + r.nextInt(5);
+		b.set(bx, y + 1, lz + 8, bench);
+		b.set(bx + 1, y + 1, lz + 8, bench);
 
 		if (r.nextInt(100) < 30) {
 			//sandbag ring of a survivor camp
@@ -951,12 +978,34 @@ public class WastelandRuins {
 				for (int z = cz - 2; z <= cz + 2; z++) {
 					boolean ring = Math.abs(x - cx) == 2 || Math.abs(z - cz) == 2;
 					if (ring && !(x == cx && z == cz + 2)) {
-						b.set(x, b.ground(x, z) + 1, z, TGBlocks.SANDBAGS.getDefaultState());
+						b.set(x, y + 1, z, TGBlocks.SANDBAGS.getDefaultState());
 					}
 				}
 			}
-			b.lootChest(cx, b.ground(cx, cz) + 1, cz, EnumFacing.SOUTH, LOOT);
-			b.crate(cx - 1, b.ground(cx - 1, cz - 1) + 1, cz - 1);
+			b.lootChest(cx, y + 1, cz, EnumFacing.SOUTH, LOOT);
+			b.crate(cx - 1, y + 1, cz - 1);
+		}
+	}
+
+	/**
+	 * bare dead tree that never looks at the world, so it can be built in parts
+	 */
+	protected static void deadTree(RuinBuilder b, int x, int y, int z) {
+		Random r = b.rnd;
+		IBlockState log = Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT, r.nextBoolean() ? BlockPlanks.EnumType.DARK_OAK : BlockPlanks.EnumType.ACACIA);
+		int height = 4 + r.nextInt(4);
+		for (int i = 0; i < height; i++) {
+			b.set(x, y + i, z, log);
+		}
+		int branches = 1 + r.nextInt(3);
+		for (int n = 0; n < branches; n++) {
+			EnumFacing dir = randomFacing(r);
+			IBlockState branch = log.withProperty(BlockLog.LOG_AXIS, dir.getAxis() == EnumFacing.Axis.X ? BlockLog.EnumAxis.X : BlockLog.EnumAxis.Z);
+			int by = y + height / 2 + r.nextInt(height - height / 2);
+			int length = 1 + r.nextInt(2);
+			for (int l = 1; l <= length; l++) {
+				b.set(x + dir.getFrontOffsetX() * l, by + (l > 1 ? 1 : 0), z + dir.getFrontOffsetZ() * l, branch);
+			}
 		}
 	}
 
@@ -1163,7 +1212,7 @@ public class WastelandRuins {
 		}
 
 		//burnt car at the pumps
-		car(b, c.x(3, 9), c.z(3, 9), c.f(EnumFacing.EAST), true);
+		car(b, c.x(3, 9), c.z(3, 9), c.f(EnumFacing.EAST), true, -1);
 	}
 
 	/**

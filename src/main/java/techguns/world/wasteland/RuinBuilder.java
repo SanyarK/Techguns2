@@ -10,8 +10,12 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import techguns.blocks.EnumConcreteType;
+import techguns.blocks.EnumMonsterSpawnerType;
+import techguns.tileentities.TGSpawnerTileEnt;
 import techguns.world.structures.StructureBuilder;
 
 /**
@@ -28,8 +32,26 @@ public class RuinBuilder extends StructureBuilder {
 	public static final IBlockState CRACKED_BRICKS = Blocks.STONEBRICK.getDefaultState().withProperty(BlockStoneBrick.VARIANT, BlockStoneBrick.EnumType.CRACKED);
 	public static final IBlockState ANDESITE = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE);
 
+	/** blocks outside of this area are not placed, used to build chunk aligned city blocks in parts */
+	protected int clipMinX = Integer.MIN_VALUE;
+	protected int clipMinZ = Integer.MIN_VALUE;
+	protected int clipMaxX = Integer.MAX_VALUE;
+	protected int clipMaxZ = Integer.MAX_VALUE;
+
 	public RuinBuilder(World world, Random rnd) {
 		super(world, rnd);
+	}
+
+	public RuinBuilder clip(int minX, int minZ, int maxX, int maxZ) {
+		this.clipMinX = minX;
+		this.clipMinZ = minZ;
+		this.clipMaxX = maxX;
+		this.clipMaxZ = maxZ;
+		return this;
+	}
+
+	public boolean inClip(int x, int z) {
+		return x >= this.clipMinX && x <= this.clipMaxX && z >= this.clipMinZ && z <= this.clipMaxZ;
 	}
 
 	public static IBlockState concreteColor(EnumDyeColor color) {
@@ -45,9 +67,24 @@ public class RuinBuilder extends StructureBuilder {
 	 */
 	@Override
 	public void set(int x, int y, int z, IBlockState state) {
-		if (isValidY(y)) {
+		if (isValidY(y) && this.inClip(x, z)) {
 			this.world.setBlockState(this.p.setPos(x, y, z), state, 18);
 		}
+	}
+
+	@Override
+	public void lootChest(int x, int y, int z, EnumFacing facing, ResourceLocation loottable) {
+		if (this.inClip(x, z)) {
+			super.lootChest(x, y, z, facing, loottable);
+		}
+	}
+
+	@Override
+	public TGSpawnerTileEnt spawner(int x, int y, int z, EnumMonsterSpawnerType type, int mobsLeft, int maxActive, int delay, int range) {
+		if (!this.inClip(x, z)) {
+			return null;
+		}
+		return super.spawner(x, y, z, type, mobsLeft, maxActive, delay, range);
 	}
 
 	/**
