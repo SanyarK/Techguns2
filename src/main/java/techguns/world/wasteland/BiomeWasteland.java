@@ -79,7 +79,8 @@ public class BiomeWasteland extends Biome {
 			this.decorator.deadBushPerChunk = 1;
 			break;
 		case CITY_RUINS:
-			this.decorator.extraTreeChance = 0.02f;
+			//no trees, the city blocks would cut them
+			this.decorator.extraTreeChance = 0.0f;
 			this.decorator.grassPerChunk = 0;
 			this.decorator.deadBushPerChunk = 1;
 			break;
