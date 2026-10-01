@@ -886,6 +886,17 @@ public class TGCampaign {
 	}
 
 	protected static void checkTargets(EntityPlayerMP player, TGCampaignData data, CampaignMission m, List<CampaignPoint> points) {
+		//a place that was manned without its targets gets them now
+		for (CampaignPoint p : points) {
+			if (p.armed && p.targets.isEmpty() && data.getProgress() < m.count && horizontalDistSq(player, p.pos) < ARM_DISTANCE * ARM_DISTANCE) {
+				CampaignSiteBuilder.buildTargets(player.world, p, RND);
+				overworldData(player).savePoints(player);
+				updateMarker(player, data, m);
+				if (data.hasObjective()) {
+					announcePoint(player, data.getObjective());
+				}
+			}
+		}
 		int destroyed = 0;
 		boolean known = false;
 		for (CampaignPoint p : points) {
@@ -1230,6 +1241,27 @@ public class TGCampaign {
 		switch (m.type) {
 		case TALK:
 			return post;
+		case DESTROY: {
+			//the GPS leads to the nearest target that is still standing
+			BlockPos best = null;
+			double bestDist = Double.MAX_VALUE;
+			for (CampaignPoint p : points) {
+				for (BlockPos t : p.targets) {
+					if (player.world.isBlockLoaded(t) && player.world.getBlockState(t).getBlock() != TGBlocks.CAMPAIGN_TARGET) {
+						continue;
+					}
+					double d = horizontalDistSq(player, t);
+					if (d < bestDist) {
+						bestDist = d;
+						best = t;
+					}
+				}
+			}
+			if (best != null) {
+				return best;
+			}
+			break;
+		}
 		case KILL:
 			if (m.area > 0) {
 				return anchorPos(player, m.anchor);

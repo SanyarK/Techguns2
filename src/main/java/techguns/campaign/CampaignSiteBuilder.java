@@ -766,7 +766,7 @@ public class CampaignSiteBuilder {
 	/**
 	 * Targets of sabotage missions: a fuel depot next to a Legion base, a launch point next to the airfield
 	 */
-	protected static void buildTargets(World world, CampaignPoint point, Random rnd) {
+	public static void buildTargets(World world, CampaignPoint point, Random rnd) {
 		point.targets.clear();
 		RuinBuilder b = new RuinBuilder(world, rnd);
 		IBlockState fuel = TGBlocks.CAMPAIGN_TARGET.getDefaultState().withProperty(TGBlocks.CAMPAIGN_TARGET.TYPE, EnumCampaignTargetType.FUEL_TANK);
