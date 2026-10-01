@@ -333,6 +333,10 @@ public class TGCampaign {
 			commanderSays(player, "msg.resupply");
 		}
 		sync(player);
+		//the objective is only told once in the chat, the radio repeats it (e.g. after logging in again)
+		if (data.getState() == TGCampaignData.STATE_ACTIVE && data.hasObjective()) {
+			announcePoint(player, data.getObjective());
+		}
 		TGPackets.network.sendTo(new PacketCampaignOpenGui(data.getMission(), data.getState(), data.getProgress(), atCommander), player);
 	}
 

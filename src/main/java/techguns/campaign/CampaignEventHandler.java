@@ -92,6 +92,10 @@ public class CampaignEventHandler {
 			data.clearMigrated();
 		}
 		TGCampaign.sync(player);
+		//remind the player where the current objective is
+		if (TGConfig.campaignEnabled && data.getState() == TGCampaignData.STATE_ACTIVE && data.hasObjective() && !data.isFinished()) {
+			TGCampaign.announcePoint(player, data.getObjective());
+		}
 		//rain, sky and fog of a world the Purifier restored
 		boolean restored = WorldRestoration.get(TGCampaign.overworld(player)).isRestored();
 		TGPackets.network.sendTo(new PacketCampaignEvent(PacketCampaignEvent.RESTORED, restored ? 1 : 0), player);
