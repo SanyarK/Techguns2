@@ -168,6 +168,9 @@ public class CampaignMission {
 	@Nullable
 	public final CampaignTarget dropFrom;
 	public final float dropChance;
+	/** COLLECT: one different quest item per objective point, found in the chest of the point, null = none */
+	@Nullable
+	public final List<Supplier<Item>> components;
 
 	public final List<Wave> waves;
 	public final boolean atNight;
@@ -209,6 +212,7 @@ public class CampaignMission {
 		this.giveOnAccept = b.giveOnAccept;
 		this.dropFrom = b.dropFrom;
 		this.dropChance = b.dropChance;
+		this.components = b.components;
 		this.waves = Collections.unmodifiableList(b.waves);
 		this.atNight = b.atNight;
 		this.seconds = b.seconds;
@@ -270,6 +274,21 @@ public class CampaignMission {
 		return this.site;
 	}
 
+	/**
+	 * COLLECT with components: the quest item that lies at the objective point with the given index
+	 */
+	@Nullable
+	public Item getComponent(int index) {
+		if (this.components == null || index < 0 || index >= this.components.size()) {
+			return null;
+		}
+		return this.components.get(index).get();
+	}
+
+	public boolean hasComponents() {
+		return this.components != null && !this.components.isEmpty();
+	}
+
 	/** number of objective points */
 	public int getSiteCount() {
 		return this.siteList != null ? this.siteList.length : this.sites;
@@ -282,7 +301,8 @@ public class CampaignMission {
 	/** the total amount the progress bar in the dialog counts to */
 	public int getRequired() {
 		if (this.type == ObjectiveType.DEFEND) {
-			return this.waves.size();
+			//charging missions count the charge in percent
+			return this.seconds > 0 ? 100 : this.waves.size();
 		}
 		if (this.type == ObjectiveType.SURVIVE) {
 			return this.seconds;
@@ -310,6 +330,7 @@ public class CampaignMission {
 		protected boolean giveOnAccept = false;
 		protected CampaignTarget dropFrom;
 		protected float dropChance = 0f;
+		protected List<Supplier<Item>> components;
 		protected final List<Wave> waves = new ArrayList<>();
 		protected boolean atNight = false;
 		protected int seconds = 0;
@@ -406,6 +427,14 @@ public class CampaignMission {
 			return this;
 		}
 
+		/** COLLECT: one quest item per place (in the order of {@link #places}), each lies in the chest of its place */
+		@SafeVarargs
+		public final Builder components(Supplier<Item>... items) {
+			this.components = Arrays.asList(items);
+			this.count = items.length;
+			return this;
+		}
+
 		public Builder waves(Wave... waves) {
 			this.waves.addAll(Arrays.asList(waves));
 			return this;
@@ -417,7 +446,7 @@ public class CampaignMission {
 			return this;
 		}
 
-		/** SURVIVE: length of the fight */
+		/** SURVIVE: length of the fight, DEFEND: charging time, the waves come one after another while it runs */
 		public Builder seconds(int seconds) {
 			this.seconds = seconds;
 			return this;

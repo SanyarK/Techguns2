@@ -45,8 +45,10 @@ public class CampaignBattle {
 	protected int waveSize = 0;
 	/** seconds the current wave is running */
 	protected int waveTime = 0;
-	/** SURVIVE: seconds left */
+	/** SURVIVE and charging: seconds left */
 	protected int timeLeft;
+	/** charging: waves already sent */
+	protected int wavesSent = 0;
 
 	public CampaignBattle(CampaignMission mission, World world, BlockPos center) {
 		this.mission = mission;
@@ -55,6 +57,18 @@ public class CampaignBattle {
 		this.timeLeft = mission.seconds;
 		this.bar = new BossInfoServer(new TextComponentTranslation(Techguns.MODID + ".campaign.battle.waiting"), BossInfo.Color.RED, BossInfo.Overlay.NOTCHED_10);
 		this.bar.setPercent(1.0f);
+		if (this.isCharging()) {
+			this.bar.setColor(BossInfo.Color.GREEN);
+			this.bar.setPercent(0.0f);
+		}
+	}
+
+	/**
+	 * DEFEND with a time: the waves come one after another while the Purifier charges,
+	 * the fight is won when it is fully charged
+	 */
+	public boolean isCharging() {
+		return this.mission.type == ObjectiveType.DEFEND && this.mission.seconds > 0;
 	}
 
 	public boolean isStarted() {
@@ -74,7 +88,7 @@ public class CampaignBattle {
 			this.started = true;
 			this.cooldown = 5;
 			this.bar.addPlayer(player);
-			TGCampaign.commanderSays(player, "battle.start_" + (this.mission.type == ObjectiveType.SURVIVE ? "survive" : "defend"));
+			TGCampaign.commanderSays(player, "battle.start_" + (this.mission.type == ObjectiveType.SURVIVE ? "survive" : this.isCharging() ? "charge" : "defend"));
 			player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.HOSTILE, 0.4f, 1.4f);
 		}
 
@@ -95,7 +109,54 @@ public class CampaignBattle {
 		if (this.mission.type == ObjectiveType.SURVIVE) {
 			return this.tickSurvive(player, data);
 		}
+		if (this.isCharging()) {
+			return this.tickCharge(player, data);
+		}
 		return this.tickDefend(player, data);
+	}
+
+	protected boolean tickCharge(EntityPlayerMP player, TGCampaignData data) {
+		int total = Math.max(this.mission.seconds, 1);
+		this.timeLeft--;
+		int elapsed = total - Math.max(this.timeLeft, 0);
+		int percent = Math.min(100, elapsed * 100 / total);
+		if (percent != data.getProgress()) {
+			data.setProgress(percent);
+			if (percent % 10 == 0) {
+				TGCampaign.sync(player);
+			}
+		}
+		//the waves are spread over the charging time, the last one leaves time to fight it
+		int waves = this.mission.waves.size();
+		if (this.wavesSent < waves && elapsed >= 5 + this.wavesSent * Math.max(total - 60, 10) / Math.max(waves - 1, 1)) {
+			this.spawnWave(player, this.mission.waves.get(this.wavesSent));
+			this.wavesSent++;
+			player.sendStatusMessage(new TextComponentTranslation(Techguns.MODID + ".campaign.battle.incoming", this.wavesSent, waves), true);
+			if (this.wavesSent > 1) {
+				player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.HOSTILE, 0.3f, 1.6f);
+			}
+		}
+		this.bar.setName(new TextComponentTranslation(Techguns.MODID + ".campaign.battle.charge", percent, this.wavesSent, waves, this.alive.size()));
+		this.bar.setPercent(elapsed / (float) total);
+		if (this.timeLeft <= 0) {
+			data.setProgress(100);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * the charged Purifier sends out its first pulse: the remaining attackers burn away
+	 */
+	public void purge() {
+		for (EntityLiving e : this.alive) {
+			if (e.isEntityAlive() && this.world instanceof net.minecraft.world.WorldServer) {
+				((net.minecraft.world.WorldServer) this.world).spawnParticle(net.minecraft.util.EnumParticleTypes.END_ROD, e.posX, e.posY + e.height * 0.5D, e.posZ,
+						20, e.width * 0.5D, e.height * 0.5D, e.width * 0.5D, 0.05D);
+			}
+			e.setDead();
+		}
+		this.alive.clear();
 	}
 
 	protected boolean tickDefend(EntityPlayerMP player, TGCampaignData data) {

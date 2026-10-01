@@ -15,6 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import techguns.Techguns;
+import techguns.campaign.CampaignFinale;
 import techguns.campaign.CampaignMission;
 import techguns.campaign.CampaignMissions;
 import techguns.campaign.TGCampaign;
@@ -23,11 +24,12 @@ import techguns.capabilities.TGCampaignData;
 /**
  * Operator command to test the story campaign:
  * /tgcampaign set <1-30> jumps to a mission, /tgcampaign complete finishes the current mission,
- * /tgcampaign reset restarts, /tgcampaign info shows the state.
+ * /tgcampaign reset restarts, /tgcampaign info shows the state, /tgcampaign ending plays the
+ * ending (launch of the Purifier, restored world, settlers, epilogue) without the rewards.
  */
 public class CommandTGCampaign extends CommandBase {
 
-	protected static final String[] OPTIONS = {"set", "complete", "reset", "info"};
+	protected static final String[] OPTIONS = {"set", "complete", "reset", "info", "ending"};
 
 	@Override
 	public String getName() {
@@ -36,7 +38,7 @@ public class CommandTGCampaign extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/tgcampaign <set <1-" + TGCampaignData.LAST_MISSION + ">|complete|reset|info>";
+		return "/tgcampaign <set <1-" + TGCampaignData.LAST_MISSION + ">|complete|reset|info|ending>";
 	}
 
 	@Override
@@ -78,6 +80,13 @@ public class CommandTGCampaign extends CommandBase {
 			}
 			break;
 		}
+		case "ending":
+			if (CampaignFinale.isRunning(player)) {
+				throw new CommandException(Techguns.MODID + ".campaign.cmd.ending_running");
+			}
+			CampaignFinale.start(player);
+			sender.sendMessage(new TextComponentTranslation(Techguns.MODID + ".campaign.cmd.ending"));
+			break;
 		case "reset":
 			TGCampaign.reset(player);
 			sender.sendMessage(new TextComponentTranslation(Techguns.MODID + ".campaign.cmd.reset"));

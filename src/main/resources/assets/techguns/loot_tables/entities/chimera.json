@@ -1,0 +1,99 @@
+{
+    "pools": [
+        {
+            "name": "contract",
+            "rolls": 2,
+            "entries": [
+                {
+                    "type": "item",
+                    "weight": 1,
+                    "name": "techguns:military_contract"
+                }
+            ]
+        },
+        {
+            "name": "gun",
+            "rolls": 3,
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "weight": 1,
+                    "name": "techguns:blocks/military_crate_gun"
+                }
+            ]
+        },
+        {
+            "name": "armor",
+            "rolls": 2,
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "weight": 1,
+                    "name": "techguns:blocks/military_crate_armor"
+                }
+            ]
+        },
+        {
+            "name": "ammo",
+            "rolls": 2,
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "weight": 1,
+                    "name": "techguns:blocks/military_crate_ammo"
+                }
+            ]
+        },
+        {
+            "name": "medical",
+            "rolls": 2,
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "weight": 1,
+                    "name": "techguns:blocks/military_crate_medical"
+                }
+            ]
+        },
+        {
+            "name": "emeralds",
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "item",
+                    "weight": 1,
+                    "name": "minecraft:emerald",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 8,
+                                "max": 16
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "diamonds",
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "item",
+                    "weight": 1,
+                    "name": "minecraft:diamond",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 2,
+                                "max": 5
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

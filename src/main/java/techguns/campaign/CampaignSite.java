@@ -21,7 +21,7 @@ public enum CampaignSite {
 	/** two storey ruin of a hospital */
 	HOSPITAL(10, false),
 	/** Legion airfield, reused by the last mission of act III */
-	AIRFIELD(40, true),
+	AIRFIELD(40, true, "airfield"),
 	/** Legion bunker where the scientist is held */
 	SCIENTIST_BUNKER(16, false),
 	/** Legion military base with a fuel depot */
@@ -42,24 +42,31 @@ public enum CampaignSite {
 	/** crater lair of the Mutant Warlord */
 	MUTANT_LAIR(24, false),
 	/** the secret underground mutagen laboratory of project Chimera */
-	MUTAGEN_LAB(32, true),
-	/** ruins of the nuclear power plant */
+	MUTAGEN_LAB(32, true, "lab"),
+	/** ruins of the nuclear power plant, the reactor core lies in the reactor hall */
 	REACTOR_RUINS(32, false),
-	/** Legion headquarters */
+	/** Legion headquarters: a fortified compound above a large bunker */
 	LEGION_HQ(32, false),
 	/** launch pad of the Purifier */
-	LAUNCH_SITE(24, true),
-	/** the Hive in the center of the crater */
-	HIVE(32, false);
+	LAUNCH_SITE(24, true, "launch"),
+	/** the Hive in the center of the crater, the lair of Chimera deep below */
+	HIVE(32, true, "hive");
 
 	/** how close the player has to get for "reach" objectives */
 	public final double reachRadius;
 	/** true when later missions may come back to this place */
 	public final boolean persistent;
+	/** name under which missions with several places find this place again, null = never reused */
+	public final String memory;
 
 	CampaignSite(double reachRadius, boolean persistent) {
+		this(reachRadius, persistent, null);
+	}
+
+	CampaignSite(double reachRadius, boolean persistent, String memory) {
 		this.reachRadius = reachRadius;
 		this.persistent = persistent;
+		this.memory = memory;
 	}
 
 	public static CampaignSite byName(String name) {

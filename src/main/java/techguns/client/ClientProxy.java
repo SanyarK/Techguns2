@@ -169,7 +169,9 @@ import techguns.client.render.entities.npcs.RenderCommando;
 import techguns.client.render.entities.npcs.RenderCyberDemon;
 import techguns.client.render.entities.npcs.RenderDictatorDave;
 import techguns.client.render.entities.npcs.RenderGhastling;
+import techguns.client.render.entities.npcs.RenderChimera;
 import techguns.client.render.entities.npcs.RenderMilitaryJet;
+import techguns.client.render.entities.npcs.RenderSettler;
 import techguns.client.render.entities.npcs.RenderNPCTurret;
 import techguns.client.render.entities.npcs.RenderOutcast;
 import techguns.client.render.entities.npcs.RenderParatrooper;
@@ -237,6 +239,7 @@ import techguns.entities.npcs.Commando;
 import techguns.entities.npcs.CyberDemon;
 import techguns.entities.npcs.DictatorDave;
 import techguns.entities.npcs.CapturedScientist;
+import techguns.entities.npcs.ChimeraBoss;
 import techguns.entities.npcs.CommanderNPC;
 import techguns.entities.npcs.EliteSoldier;
 import techguns.entities.npcs.General;
@@ -250,6 +253,7 @@ import techguns.entities.npcs.Outcast;
 import techguns.entities.npcs.Paratrooper;
 import techguns.entities.npcs.LegionPrisoner;
 import techguns.entities.npcs.PrototypeBoss;
+import techguns.entities.npcs.SettlerNPC;
 import techguns.entities.npcs.PsychoSteve;
 import techguns.entities.npcs.SkeletonSoldier;
 import techguns.entities.npcs.StormTrooper;
@@ -1166,6 +1170,8 @@ public class ClientProxy extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(CapturedScientist.class, m -> new RenderTexturedSoldier<CapturedScientist>(m, new ResourceLocation(Techguns.MODID,"textures/entity/scientist.png")));
 		RenderingRegistry.registerEntityRenderingHandler(PrototypeBoss.class, m -> new RenderTexturedMutant(m, new ResourceLocation(Techguns.MODID,"textures/entity/prototype.png")));
 		RenderingRegistry.registerEntityRenderingHandler(LegionPrisoner.class, m -> new RenderTexturedSoldier<LegionPrisoner>(m, new ResourceLocation(Techguns.MODID,"textures/entity/prisoner.png")));
+		RenderingRegistry.registerEntityRenderingHandler(ChimeraBoss.class, RenderChimera::new);
+		RenderingRegistry.registerEntityRenderingHandler(SettlerNPC.class, RenderSettler::new);
 	}
 	
 	
@@ -1181,6 +1187,23 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void openCampaignGui(int mission, byte state, int progress, boolean atCommander) {
 		Minecraft.getMinecraft().displayGuiScreen(new techguns.client.gui.GuiCampaignDialog(mission, state, progress, atCommander));
+	}
+
+	@Override
+	public void handleCampaignEvent(int type, int value) {
+		switch (type) {
+		case techguns.packets.PacketCampaignEvent.RESTORED:
+			CampaignClientEvents.setRestored(value != 0);
+			break;
+		case techguns.packets.PacketCampaignEvent.FLASH:
+			CampaignClientEvents.flash(value);
+			break;
+		case techguns.packets.PacketCampaignEvent.EPILOGUE:
+			Minecraft.getMinecraft().displayGuiScreen(new techguns.client.gui.GuiCampaignEpilogue());
+			break;
+		default:
+			break;
+		}
 	}
 
 	

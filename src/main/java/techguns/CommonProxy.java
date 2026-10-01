@@ -137,6 +137,12 @@ public abstract class CommonProxy implements ITGInitializer {
 	}
 
 	/**
+	 * Events of the campaign ending (restored world flag, launch flash, epilogue), client side only
+	 */
+	public void handleCampaignEvent(int type, int value) {
+	}
+
+	/**
 	 * Return player on client, null on server
 	 * @return
 	 */

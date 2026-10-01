@@ -6,8 +6,10 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundEvent;
@@ -31,6 +33,8 @@ public class CapturedScientist extends GenericNPC {
 	protected UUID rescuer = null;
 	/** brought to the destination of the escort mission, does not count again */
 	protected boolean delivered = false;
+	/** first part of the chat message keys, null = the default of the class */
+	protected String messagePrefix = null;
 
 	public CapturedScientist(World world) {
 		super(world);
@@ -83,7 +87,31 @@ public class CapturedScientist extends GenericNPC {
 
 	/** first part of the chat message keys, prisoners use their own texts */
 	protected String getMessagePrefix() {
-		return "scientist";
+		return this.messagePrefix != null ? this.messagePrefix : "scientist";
+	}
+
+	/**
+	 * act V: doctor Volkov waits at the command post with the components of the Purifier
+	 * and has to be escorted to the launch pad
+	 */
+	public void joinCaravan(BlockPos post) {
+		this.delivered = false;
+		this.following = false;
+		this.rescuer = null;
+		this.messagePrefix = "volkov";
+		this.enablePersistence();
+		this.setHomePosAndDistance(post, 6);
+		//he is tougher than he looks, but the mutants must not get him
+		this.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 20 * 60 * 30, 0));
+		this.heal(this.getMaxHealth());
+	}
+
+	/**
+	 * the escort reached a place where the captive stays for good
+	 */
+	public void protect() {
+		this.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 20 * 60 * 60 * 5, 3));
+		this.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 20 * 60 * 60 * 5, 1));
 	}
 
 	public EntityPlayer getRescuerPlayer() {
@@ -154,6 +182,9 @@ public class CapturedScientist extends GenericNPC {
 		super.writeEntityToNBT(compound);
 		compound.setBoolean("following", this.following);
 		compound.setBoolean("delivered", this.delivered);
+		if (this.messagePrefix != null) {
+			compound.setString("messagePrefix", this.messagePrefix);
+		}
 		if (this.rescuer != null) {
 			compound.setUniqueId("rescuer", this.rescuer);
 		}
@@ -164,6 +195,9 @@ public class CapturedScientist extends GenericNPC {
 		super.readEntityFromNBT(compound);
 		this.following = compound.getBoolean("following");
 		this.delivered = compound.getBoolean("delivered");
+		if (compound.hasKey("messagePrefix")) {
+			this.messagePrefix = compound.getString("messagePrefix");
+		}
 		if (compound.hasUniqueId("rescuer")) {
 			this.rescuer = compound.getUniqueId("rescuer");
 		}

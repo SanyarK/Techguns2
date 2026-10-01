@@ -9,6 +9,7 @@ import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.world.World;
 import techguns.entities.npcs.ArmySoldier;
+import techguns.entities.npcs.ChimeraBoss;
 import techguns.entities.npcs.Bandit;
 import techguns.entities.npcs.Commando;
 import techguns.entities.npcs.EliteSoldier;
@@ -73,7 +74,10 @@ public enum CampaignTarget {
 	WARLORD(e -> e instanceof MutantWarlord,
 			spawns(MutantWarlord.class, 1)),
 	PROTOTYPE(e -> e instanceof PrototypeBoss,
-			spawns(PrototypeBoss.class, 1));
+			spawns(PrototypeBoss.class, 1)),
+	/** the final boss in the Hive */
+	CHIMERA(e -> e instanceof ChimeraBoss,
+			spawns(ChimeraBoss.class, 1));
 
 	protected final Predicate<EntityLivingBase> matcher;
 	protected final Object[] spawnTable;

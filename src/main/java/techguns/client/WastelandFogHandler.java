@@ -17,7 +17,8 @@ import techguns.world.wasteland.BiomeWasteland;
 
 /**
  * Dust fog of the wasteland biomes (green in the radioactive zone). Strength and color change
- * slowly when walking between biomes, under a roof the fog fades out.
+ * slowly when walking between biomes, under a roof the fog fades out. When the world was restored
+ * by the Purifier of the campaign the fog slowly clears.
  */
 @Mod.EventBusSubscriber(value = Side.CLIENT, modid = Techguns.MODID)
 public class WastelandFogHandler {
@@ -37,7 +38,8 @@ public class WastelandFogHandler {
 		float tr = red;
 		float tg = green;
 		float tb = blue;
-		if (TGConfig.cl_wastelandFog && mc.world != null && mc.player != null) {
+		//after the launch of the Purifier the dust is gone and the fog is normal again
+		if (TGConfig.cl_wastelandFog && !BiomeWasteland.isWorldRestored() && mc.world != null && mc.player != null) {
 			BlockPos pos = new BlockPos(mc.player.posX, mc.player.posY + mc.player.getEyeHeight(), mc.player.posZ);
 			Biome biome = mc.world.getBiome(pos);
 			if (biome instanceof BiomeWasteland) {

@@ -292,6 +292,10 @@ public class TGItems implements ITGInitializer{
 	public static ItemQuestItem MUTAGEN_SAMPLE;
 	public static ItemQuestItem ANTENNA_PARTS;
 	public static ItemQuestItem MEDICINE;
+	public static ItemQuestItem TISSUE_SAMPLE;
+	public static ItemQuestItem REACTOR_CORE;
+	public static ItemQuestItem CONTROL_MODULE;
+	public static ItemQuestItem PURIFIER_FILTER;
 
 	//apocalypse start kit
 	public static ItemBandage BANDAGE;
@@ -553,6 +557,11 @@ public class TGItems implements ITGInitializer{
 		MUTAGEN_SAMPLE = new ItemQuestItem("mutagen_sample", Techguns.MODID + ".campaign.item.sample.tooltip", true);
 		ANTENNA_PARTS = new ItemQuestItem("antenna_parts", Techguns.MODID + ".campaign.item.antenna_parts.tooltip", false);
 		MEDICINE = new ItemQuestItem("medicine", Techguns.MODID + ".campaign.item.medicine.tooltip", false);
+		TISSUE_SAMPLE = new ItemQuestItem("tissue_sample", Techguns.MODID + ".campaign.item.tissue_sample.tooltip", false);
+		TISSUE_SAMPLE.setMaxStackSize(16);
+		REACTOR_CORE = new ItemQuestItem("reactor_core", Techguns.MODID + ".campaign.item.reactor_core.tooltip", true);
+		CONTROL_MODULE = new ItemQuestItem("control_module", Techguns.MODID + ".campaign.item.control_module.tooltip", true);
+		PURIFIER_FILTER = new ItemQuestItem("purifier_filter", Techguns.MODID + ".campaign.item.purifier_filter.tooltip", true);
 
 		BANDAGE = new ItemBandage("bandage");
 

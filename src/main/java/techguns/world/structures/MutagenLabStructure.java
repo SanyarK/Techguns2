@@ -45,6 +45,16 @@ public class MutagenLabStructure extends WorldgenStructure {
 	public static final int BOSS_OFFSET_Y = -21;
 	public static final int BOSS_OFFSET_Z = -11;
 
+	/** safe with the mutagen sample on the containment level, relative to the center at ground height */
+	public static final int SAFE_OFFSET_X = 7;
+	public static final int SAFE_OFFSET_Y = 1 - DEPTH_CELLS;
+	public static final int SAFE_OFFSET_Z = -17;
+
+	/** free spot in front of the mutagen tanks of the laboratory hall, where the Purifier filter is stored */
+	public static final int FILTER_OFFSET_X = 7;
+	public static final int FILTER_OFFSET_Y = 1 - DEPTH_LAB;
+	public static final int FILTER_OFFSET_Z = -17;
+
 	public MutagenLabStructure() {
 		super(SIZE, 10, SIZE, SIZE, 10, SIZE);
 		this.setXZSize(SIZE, SIZE);

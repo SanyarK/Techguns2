@@ -35,7 +35,8 @@ public class CommandTGStructure extends CommandBase {
 
 	protected static final String[] OPTIONS = {"underground_mine", "airfield", "bunker", "mutant_lair", "mutagen_lab", "command_post", "airraid",
 		"city_block", "ruined_building", "ruined_house", "burnt_house", "gas_station", "radio_tower", "crater", "road", "car_wreck", "shipwreck",
-		"stash_house", "bandit_camp", "radio_mast", "hospital", "convoy", "prison_camp", "evac", "fuel_depot", "launch_point"};
+		"stash_house", "bandit_camp", "radio_mast", "hospital", "convoy", "prison_camp", "evac", "fuel_depot", "launch_point",
+		"mutant_zone", "reactor_ruins", "legion_hq", "launch_site", "hive"};
 
 	@Override
 	public String getName() {
@@ -44,7 +45,7 @@ public class CommandTGStructure extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/tgstructure <underground_mine|airfield|bunker|mutant_lair|mutagen_lab|command_post|airraid|city_block|ruined_building|ruined_house|burnt_house|gas_station|radio_tower|crater|road|car_wreck|shipwreck|stash_house|bandit_camp|radio_mast|hospital|convoy|prison_camp|evac|fuel_depot|launch_point>";
+		return "/tgstructure <underground_mine|airfield|bunker|mutant_lair|mutagen_lab|command_post|airraid|city_block|ruined_building|ruined_house|burnt_house|gas_station|radio_tower|crater|road|car_wreck|shipwreck|stash_house|bandit_camp|radio_mast|hospital|convoy|prison_camp|evac|fuel_depot|launch_point|mutant_zone|reactor_ruins|legion_hq|launch_site|hive>";
 	}
 
 	@Override
